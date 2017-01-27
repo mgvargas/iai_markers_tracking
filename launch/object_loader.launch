@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+    <rosparam file="$(find rviz_markers)/config/database.yaml" command="load"/>
+
+
+<!-- Run Rviz and load the default config to see the active objects -->
+  <include file="$(find rviz_markers)/launch/markers_rviz.launch">
+    <arg name="config" value="true"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+<node name="object_poses" pkg="rviz_markers" type="object_w_mark_py.py" respawn="false" output="screen"/>

@@ -1,0 +1,52 @@
+cup:
+ id: 01
+ marker: [marker1, marker7]
+ mesh: package://iai_kitchen/meshes/misc/bowl.stl
+ poses: 2
+ grasping_poses:
+    - p_id: gp1
+      pose:
+       position: [0.1,0.1,0]
+       orientation: [0,0,0,1]
+    - p_id: gp2
+      pose:
+       position: [-0.1,-0.1,0]
+       orientation: [0,0,0,1]
+
+bowl:
+ id: 02
+ marker: [marker2]
+ mesh: package://iai_kitchen/meshes/misc/bowl.stl
+ poses: 3
+ grasping_poses:
+    - p_id: gp1
+      pose:
+       position: [0.1,0.1,0]
+       orientation: [0,0,0,1]
+    - p_id: gp2
+      pose:
+       position: [-0.1,0.1,0]
+       orientation: [0,0,0,1] 
+    - p_id: gp3
+      pose:
+       position: [-0.1,-0.1,0]
+       orientation: [0,0,0,1] 
+
+plate:
+ id: 03
+ marker: [marker3, marker10]
+ mesh: package://iai_kitchen/meshes/misc/bowl.stl
+ poses: 3
+ grasping_poses:
+    - p_id: gp1
+      pose:
+       position: [0.1,0.1,0]
+       orientation: [0,0,0,1]
+    - p_id: gp2
+      pose:
+       position: [-0.1,0.1,0]
+       orientation: [0,0,0,1] 
+    - p_id: gp3
+      pose:
+       position: [-0.1,-0.1,0]
+       orientation: [0,0,0,1] 
