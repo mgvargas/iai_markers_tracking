@@ -1,52 +1,67 @@
 cup:
  id: 01
  marker: [marker1, marker7]
- mesh: package://iai_kitchen/meshes/misc/bowl.stl
- poses: 2
+ marker1:
+  position: [0.05,0.05,0.08]
+  orientation: [0,0,0,1]
+ marker7:
+  position: [0.05,-0.05,0.1]
+  orientation: [0,0,0,1]
+ mesh: package://iai_kitchen/meshes/misc/Sink.dae
  grasping_poses:
     - p_id: gp1
-      pose:
-       position: [0.1,0.1,0]
-       orientation: [0,0,0,1]
+      position: [0.1,0.1,0]
+      orientation: [0,0,0,1]
     - p_id: gp2
-      pose:
-       position: [-0.1,-0.1,0]
-       orientation: [0,0,0,1]
+      position: [-0.1,-0.1,0]
+      orientation: [0,0,0,1]
 
 bowl:
  id: 02
  marker: [marker2]
+ marker2:
+  position: [0.25,0.05,0.15]
+  orientation: [0,0,0,1]
  mesh: package://iai_kitchen/meshes/misc/bowl.stl
- poses: 3
  grasping_poses:
     - p_id: gp1
-      pose:
-       position: [0.1,0.1,0]
-       orientation: [0,0,0,1]
+      position: [0.2,0,0]
+      orientation: [0,0,1,0.00001]
     - p_id: gp2
-      pose:
-       position: [-0.1,0.1,0]
-       orientation: [0,0,0,1] 
+      position: [-0.2,0,0]
+      orientation: [0,0,0,1]
     - p_id: gp3
-      pose:
-       position: [-0.1,-0.1,0]
-       orientation: [0,0,0,1] 
+      position: [-0.17,-0.06,0]
+      orientation: [0.0,0.0,0.4999,0.8661]
+    - p_id: gp4
+      position: [-0.17,0.06,0]
+      orientation: [0.0,0.0,-0.4999,0.8661]
+    - p_id: gp5
+      position: [0.17,0.06,0]
+      orientation: [0.0,0.0,-0.8659,0.5002]
+    - p_id: gp6
+      position: [0.17,-0.06,0]
+      orientation: [0.0,0.0,0.8659,0.5002]
 
 plate:
  id: 03
  marker: [marker3, marker10]
+ marker3:
+  position: [-0.03,0.05,0.15]
+  orientation: [0,0,0,1]
+ marker10:
+  position: [-0.05,-0.05,0.15]
+  orientation: [0,0,0,1]
+  position: [-0.12,-0.1,0]
+  orientation: [-0.0666,0.1609,0.3768,0.9098]
  mesh: package://iai_kitchen/meshes/misc/bowl.stl
- poses: 3
  grasping_poses:
     - p_id: gp1
-      pose:
-       position: [0.1,0.1,0]
-       orientation: [0,0,0,1]
+      position: [0.1,0.1,0]
+      orientation: [0,0,0,1]
     - p_id: gp2
-      pose:
-       position: [-0.1,0.1,0]
-       orientation: [0,0,0,1] 
+      position: [-0.1,0.1,0]
+      orientation: [0,0,0,1]
     - p_id: gp3
-      pose:
-       position: [-0.1,-0.1,0]
-       orientation: [0,0,0,1] 
+      position: [-0.1,-0.1,0]
+      orientation: [0,0,0,1]

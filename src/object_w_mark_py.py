@@ -47,9 +47,9 @@ def main():
         quaternion = tf.transformations.quaternion_from_euler(0, math.pi*0, 0)
         x = 0.39
         y = 0.31
-        mesh.pose.position.x = 0;
-        mesh.pose.position.y = 0;
-        mesh.pose.position.z = 0;
+        mesh.pose.position.x = 1.3;
+        mesh.pose.position.y = 2.4
+        mesh.pose.position.z = -1.2;
         mesh.pose.orientation.x = quaternion[0]
         mesh.pose.orientation.y = quaternion[1]
         mesh.pose.orientation.z = quaternion[2]
@@ -63,16 +63,16 @@ def main():
         mesh.color.a = 1.0;
 
         # Create a frame for the object
-        br.sendTransform((mesh.pose.position.x, mesh.pose.position.y, mesh.pose.position.z),
+        '''br.sendTransform((mesh.pose.position.x, mesh.pose.position.y, mesh.pose.position.z),
         (0.0, 0.0, 0.0, 1.0),
         rospy.Time.now(),
-        "bowl",
-        "map")
+        "marker1",
+        "camera_optical_frame")'''
 
         #marker.lifetime = rospy.Duration();
 
         # General Markers properties
-        marker.header.frame_id = "bowl";
+        marker.header.frame_id = "map";
         marker.header.stamp = rospy.Time.now();
         marker.ns = "marker1";
         marker.id = 1;
@@ -97,15 +97,16 @@ def main():
         quaternion1 = tf.transformations.quaternion_from_euler(0, 0, 0)
         quaternion2 = tf.transformations.quaternion_from_euler(0, 0, math.pi/2)
         quaternion3 = tf.transformations.quaternion_from_euler(math.pi/4, math.pi/2, math.pi/2)
-        marker.pose.position.x = - (x/2 + offset + marker.scale.x)
+        marker.pose.position.x = - (x/2 + offset + marker.scale.x)*0
         marker.pose.position.y = 0.0
         marker.pose.position.z = 0.0;
         marker.pose.orientation.x = quaternion1[0]
         marker.pose.orientation.y = quaternion1[1]
         marker.pose.orientation.z = quaternion1[2]
         marker.pose.orientation.w = quaternion1[3]
-        marker2.pose.position.x = 0.0
-        marker2.pose.position.y = - (y/2 + offset + marker.scale.x)
+        marker2.pose.position.x = 1.0
+        marker2.pose.position.y = 2.0
+        marker2.pose.position.z = -1.0
         marker2.pose.orientation.x = quaternion2[0]
         marker2.pose.orientation.y = quaternion2[1]
         marker2.pose.orientation.z = quaternion2[2]
@@ -118,16 +119,28 @@ def main():
         marker3.pose.orientation.z = quaternion3[2]*0
         marker3.pose.orientation.w = quaternion3[3]*0 + 1
 
+        br.sendTransform((marker2.pose.position.x, marker2.pose.position.y, marker2.pose.position.z),
+        (0.0, 0.0, 0.0, 1.0),
+        rospy.Time.now(),
+        "marker2",
+        "camera_optical_frame")
+
+        br.sendTransform((-1, -2, 2),
+        (0.0, 0.0, 0.0, 1.0),
+        rospy.Time.now(),
+        "camera_optical_frame","map" )
+
+
         # Publish the markers
         markerArray.markers.append(marker)
-        markerArray.markers.append(marker2)
+        '''markerArray.markers.append(marker2)
         markerArray.markers.append(marker3)
-        markerArray.markers.append(mesh)
+        markerArray.markers.append(mesh)'''
         marker_pub.publish(markerArray)
 
         r.sleep()
 
-def LookAt(sourcePoint, destPoint):
+#def LookAt(sourcePoint, destPoint):
 
 
 
