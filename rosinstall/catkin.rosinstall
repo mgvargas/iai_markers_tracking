@@ -1,0 +1,4 @@
+- git: 
+    local-name: rviz_markers
+    uri: https://github.com/mgvargas/rviz_markers.git
+    version: master
