@@ -29,20 +29,20 @@ class ObjectGraspingMarker():
     grasp_poses = {}
 
     def __init__(self):
-        rospy.Rate(10)
         self.s = rospy.Service('object_grasping_poses', ObjGrasping, self.list_grasping_poses)
-        self.listener = tf.TransformListener()
+        self.listener = tf.TransformListener(True, rospy.Duration(1))
         self.br = tf.TransformBroadcaster()
         self.markerArray = MarkerArray()
         self.yaml_file = {}
         self.trans_map = []
         self.rot_map = []
         self.grasp_poses = {}
-        pass
+        #pass
 
     # Read all frames published in /tf and finds markers
     def match_objects(self):
         frame_st = self.listener.getFrameStrings()
+        print 'frame:',self.listener.getFrameStrings()
         matching = [s for s in frame_st if "marker" in s]
         return matching
 
@@ -184,7 +184,6 @@ class ObjectGraspingMarker():
             found_obj[obj] = Marker()
             self.grasp_poses[obj] = []
             (found_obj[obj], poses) = ObjectGraspingMarker.obj_pos_orient(self, obj)
-            self.markerArray.markers.append(found_obj[obj])
             ob_pose = found_obj[obj].pose
 
             # Publish tf
@@ -197,7 +196,6 @@ class ObjectGraspingMarker():
             for n in range(poses):
                 markers[n] = Marker()
                 (markers[n], x, y, z) = ObjectGraspingMarker.find_poses(self, obj, n)
-                self.markerArray.markers.append(markers[n])
                 self.grasp_poses[obj].append(markers[n].ns)
 
                 self.br.sendTransform((x, y, z),
@@ -205,8 +203,8 @@ class ObjectGraspingMarker():
                                   markers[n].pose.orientation.z, markers[n].pose.orientation.w),
                                  rospy.Time.now(),
                                  markers[n].ns, obj)
-        marker_pub.publish(self.markerArray)
-        return self.markerArray
+
+        return  markers, found_obj
 
     #  ROS service for getting the name of the grasping poses of an object
     def list_grasping_poses(self, m):
@@ -238,19 +236,21 @@ class ObjectGraspingMarker():
         table.color.r = table.color.g = 0.2
         table.color.b = 0.6
         table.color.a = 1.0
-        self.markerArray.markers.append(table)
         return table
+
 
 
 # Main function
 def main():
     rospy.init_node('object_loader', anonymous=True)
-    rospy.Rate(1)
+    r = rospy.Rate(1)
     cl = ObjectGraspingMarker()
-    #marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
+
+    marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
 
     while not rospy.is_shutdown():
         markerArray = MarkerArray()
+        matching = []
 
         # Find frames that are object markers
         matching = cl.match_objects()
@@ -263,13 +263,24 @@ def main():
         obj_list = cl.find_obj(matching)
 
         # Get the transforms from the objects to the map frame
-        markerArray = cl.publish_obj(obj_list)
+        (markers, found_obj) = cl.publish_obj(obj_list)
+
+        for n in markers:
+            markerArray.markers.append(markers[n])
+
+        for obj in found_obj:
+            markerArray.markers.append(found_obj[obj])
 
         # Publish a table, just for visualization
-        cl.create_table()
+        table = cl.create_table()
+        markerArray.markers.append(table)
 
-        #marker_pub.publish(markerArray)
-        #rospy.spin()
+        print matching
+
+        marker_pub.publish(markerArray)
+        r.sleep()
+
+    rospy.spin()
 
 
 

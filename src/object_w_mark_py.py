@@ -63,11 +63,11 @@ def main():
         mesh.color.a = 1.0
 
         # Create a frame for the object
-        '''br.sendTransform((mesh.pose.position.x, mesh.pose.position.y, mesh.pose.position.z),
+        br.sendTransform((mesh.pose.position.x, mesh.pose.position.y, mesh.pose.position.z),
         (0.0, 0.0, 0.0, 1.0),
         rospy.Time.now(),
-        "marker1",
-        "camera_optical_frame")'''
+        "marker4",
+        "camera_optical_frame")
 
         #marker.lifetime = rospy.Duration();
 
@@ -85,7 +85,8 @@ def main():
         marker.color.r = 0.0
         marker.color.g = 0.7
         marker.color.b = 1.0
-        marker.color.a = 1.0
+        marker.\
+            color.a = 1.0
         marker2 = copy.deepcopy(marker)
         marker2.ns = "marker2"
         marker2.id = 2
@@ -134,10 +135,10 @@ def main():
 
         # Publish the markers
         markerArray.markers.append(marker)
-        '''markerArray.markers.append(marker2)
+        markerArray.markers.append(marker2)
         markerArray.markers.append(marker3)
-        markerArray.markers.append(mesh)'''
-        marker_pub.publish(markerArray)
+        markerArray.markers.append(mesh)
+        #marker_pub.publish(markerArray)
 
         r.sleep()
 
