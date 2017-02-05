@@ -205,6 +205,7 @@ class ObjectGraspingMarker():
                                   markers[n].pose.orientation.z, markers[n].pose.orientation.w),
                                  rospy.Time.now(),
                                  markers[n].ns, obj)
+        marker_pub.publish(self.markerArray)
         return self.markerArray
 
     #  ROS service for getting the name of the grasping poses of an object
@@ -244,8 +245,9 @@ class ObjectGraspingMarker():
 # Main function
 def main():
     rospy.init_node('object_loader', anonymous=True)
+    rospy.Rate(1)
     cl = ObjectGraspingMarker()
-    marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
+    #marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
 
     while not rospy.is_shutdown():
         markerArray = MarkerArray()
@@ -266,7 +268,8 @@ def main():
         # Publish a table, just for visualization
         cl.create_table()
 
-        marker_pub.publish(markerArray)
+        #marker_pub.publish(markerArray)
+        #rospy.spin()
 
 
 
