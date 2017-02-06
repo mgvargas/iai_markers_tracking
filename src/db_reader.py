@@ -143,7 +143,7 @@ class ObjectGraspingMarker():
                         return object, poses
 
     # Create markers for each grasping pose of an object
-    def find_poses(self, obj, n):
+    def poses_markers(self, obj, n):
         mar = Marker()
         yaml_file = self.yaml_file
         for k in yaml_file.keys():
@@ -154,6 +154,7 @@ class ObjectGraspingMarker():
                 mar.ns = obj + '_' + yaml_file[k]['grasping_poses'][n]['p_id']
                 mar.id = yaml_file[k]['id'] * 100 + n
                 mar.type = mar.ARROW
+                mar.type = mar.MESH_RESOURCE
                 mar.action = mar.ADD
                 mar.mesh_use_embedded_materials = True
                 mar.scale.x = 0.1
@@ -166,10 +167,16 @@ class ObjectGraspingMarker():
                 pos = yaml_file[k]['grasping_poses'][n]['position']
                 orien = yaml_file[k]['grasping_poses'][n]['orientation']
                 euler = tf.transformations.euler_from_quaternion(orien)
-                z = math.copysign(math.cos(euler[1]) * mar.scale.x, pos[2])
-                mar.pose.position.x = math.copysign(math.cos(euler[2]) * z, pos[0]) + pos[0]
-                mar.pose.position.y = math.copysign(math.sin(euler[2]) * z, pos[1]) + pos[1]
-                mar.pose.position.z = math.copysign(math.sin(euler[1]) * mar.scale.x, pos[2]) + pos[2]
+                if mar.type == mar.ARROW:
+                    z = math.copysign(math.cos(euler[1]) * mar.scale.x, pos[2])
+                    mar.pose.position.x = math.copysign(math.cos(euler[2]) * z, pos[0]) + pos[0]
+                    mar.pose.position.y = math.copysign(math.sin(euler[2]) * z, pos[1]) + pos[1]
+                    mar.pose.position.z = math.copysign(math.sin(euler[1]) * mar.scale.x, pos[2]) + pos[2]
+                else:
+                    mar.pose.position.x = pos[0]
+                    mar.pose.position.y = pos[1]
+                    mar.pose.position.z = pos[2]
+                    mar.mesh_resource = 'package://iai_kitchen/meshes/misc/bowl.stl'
                 mar.pose.orientation.x = orien[0]
                 mar.pose.orientation.y = orien[1]
                 mar.pose.orientation.z = orien[2]
@@ -195,7 +202,7 @@ class ObjectGraspingMarker():
             # Create markers for the grasping poses
             for n in range(poses):
                 markers[n] = Marker()
-                (markers[n], x, y, z) = ObjectGraspingMarker.find_poses(self, obj, n)
+                (markers[n], x, y, z) = ObjectGraspingMarker.poses_markers(self, obj, n)
                 self.grasp_poses[obj].append(markers[n].ns)
 
                 self.br.sendTransform((x, y, z),
