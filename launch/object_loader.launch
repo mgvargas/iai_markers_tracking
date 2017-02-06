@@ -1,13 +1,22 @@
 <?xml version="1.0"?>
 <launch>
 
-    <rosparam file="$(find rviz_markers)/config/database.yaml" command="load"/>
+    <!-- By default, we are not in debug mode -->
+    <arg name="debug" default="false" />
 
+    <!--rosparam file="$(find rviz_markers)/config/database.yaml" command="load"/-->
 
-<!-- Run Rviz and load the default config to see the active objects -->
-  <include file="$(find rviz_markers)/launch/markers_rviz.launch">
-    <arg name="config" value="true"/>
-    <arg name="debug" value="$(arg debug)"/>
-  </include>
+    <!-- Run Rviz and load the default config to see the active objects -->
+    <include file="$(find rviz_markers)/launch/markers_rviz.launch">
+      <arg name="config" value="true"/>
+      <arg name="debug" value="$(arg debug)"/>
+    </include>
 
-<node name="object_poses" pkg="rviz_markers" type="object_w_mark_py.py" respawn="false" output="screen"/>
+    <node name="objects" pkg="rviz_markers" type="db_reader.py" respawn="false" output="screen"/>
+
+    <include file="$(find iai_boxy_sim)/launch/boxy.launch"/>
+
+   <!-- Testing (publishes markers in tf/
+   <node name="object_poses" pkg="rviz_markers" type="object_w_mark_py.py" respawn="false" output="screen"/-->
+
+</launch>

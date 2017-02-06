@@ -26,22 +26,28 @@ bowl:
  grasping_poses:
     - p_id: gp1
       position: [0.2,0,0]
-      orientation: [0,0,1,0.00001]
+      orientation_arrow: [0,0,1,0.00001]
+      orientation: [0,-0.7071,0,0.7071]
     - p_id: gp2
       position: [-0.2,0,0]
-      orientation: [0,0,0,1]
+      orientation_arrow: [0,0,0,1]
+      orientation: [0,0.7071,0,0.7071]
     - p_id: gp3
       position: [-0.17,-0.06,0]
-      orientation: [0.0,0.0,0.4999,0.8661]
+      orientation_arrow: [0.0,0.0,0.4999,0.8661]
+      orientation: [-0.35347752, 0.61241624,  0.35347752,  0.61241624]
     - p_id: gp4
-      position: [-0.17,0.06,0]
-      orientation: [0.0,0.0,-0.4999,0.8661]
+      position: [-0.18,0.05,0]
+      orientation_arrow: [0.0,0.0,-0.4999,0.8661]
+      orientation: [0.35347752, 0.61241624, -0.35347752,  0.61241624]
     - p_id: gp5
       position: [0.17,0.06,0]
-      orientation: [0.0,0.0,-0.8659,0.5002]
+      orientation_arrow: [0.0,0.0,-0.8659,0.5002]
+      orientation: [0.61228901,  0.35369784, -0.61228901,  0.35369784]
     - p_id: gp6
       position: [0.17,-0.06,0]
-      orientation: [0.0,0.0,0.8659,0.5002]
+      orientation_arrow: [0.0,0.0,0.8659,0.5002]
+      orientation: [-0.61228901,  0.35369784, 0.61228901,  0.35369784]
 
 plate:
  id: 03

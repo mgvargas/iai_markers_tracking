@@ -20,6 +20,10 @@ import rospy
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from rviz_markers.srv import ObjGrasping
+from tf.msg import tfMessage
+#from apscheduler.scheduler import Scheduler
+from apscheduler.schedulers.background import BackgroundScheduler
+import threading
 import math
 import tf
 import yaml
@@ -30,20 +34,28 @@ class ObjectGraspingMarker():
 
     def __init__(self):
         self.s = rospy.Service('object_grasping_poses', ObjGrasping, self.list_grasping_poses)
-        self.listener = tf.TransformListener(True, rospy.Duration(1))
+        self.listener = tf.TransformListener(False, rospy.Duration(1))
+        self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback)
         self.br = tf.TransformBroadcaster()
         self.markerArray = MarkerArray()
+        self.frame_st = {'map'}
         self.yaml_file = {}
         self.trans_map = []
         self.rot_map = []
         self.grasp_poses = {}
-        #pass
+
+    def callback(self, data):
+        str_data = data.transforms[0].child_frame_id
+        self.frame_st.update({str_data})
+
+    def clear_v(self):
+        self.frame_st = {}
+        self.frame_st = {'map'}
 
     # Read all frames published in /tf and finds markers
     def match_objects(self):
-        frame_st = self.listener.getFrameStrings()
-        print 'frame:',self.listener.getFrameStrings()
-        matching = [s for s in frame_st if "marker" in s]
+        print 'frame:',len(self.frame_st)
+        matching = [s for s in self.frame_st if "marker" in s]
         return matching
 
     # Quaternion multiplication (input as tuples)
@@ -99,7 +111,7 @@ class ObjectGraspingMarker():
 
         return self.trans_map, self.rot_map
 
-    # Creates the markers for the objects (pose is wrt /map)
+    # Creates the object as a Marker() (pose is wrt /map)
     def obj_pos_orient(self, obj):
         object = Marker()
         yaml_file = self.yaml_file
@@ -153,35 +165,47 @@ class ObjectGraspingMarker():
                 mar.header.stamp = rospy.Time.now()
                 mar.ns = obj + '_' + yaml_file[k]['grasping_poses'][n]['p_id']
                 mar.id = yaml_file[k]['id'] * 100 + n
-                mar.type = mar.ARROW
+                #mar.type = mar.ARROW
                 mar.type = mar.MESH_RESOURCE
                 mar.action = mar.ADD
-                mar.mesh_use_embedded_materials = True
                 mar.scale.x = 0.1
                 mar.scale.y = mar.scale.z = 0.02
                 mar.color.g = 0.3
                 mar.color.r = mar.color.b = 0.9
-                mar.color.a = 1.0
+                mar.color.a = 0.9
                 mar.lifetime = rospy.Time(1)
                 # Marker pose
                 pos = yaml_file[k]['grasping_poses'][n]['position']
                 orien = yaml_file[k]['grasping_poses'][n]['orientation']
-                euler = tf.transformations.euler_from_quaternion(orien)
                 if mar.type == mar.ARROW:
+                    orien_a = yaml_file[k]['grasping_poses'][n]['orientation_arrow']
+                    euler = tf.transformations.euler_from_quaternion(orien_a)
+                    mar.color.g = 0.3
+                    mar.color.r = mar.color.b = 0.9
+                    mar.scale.x = 0.1
+                    mar.scale.y = mar.scale.z = 0.02
                     z = math.copysign(math.cos(euler[1]) * mar.scale.x, pos[2])
                     mar.pose.position.x = math.copysign(math.cos(euler[2]) * z, pos[0]) + pos[0]
                     mar.pose.position.y = math.copysign(math.sin(euler[2]) * z, pos[1]) + pos[1]
                     mar.pose.position.z = math.copysign(math.sin(euler[1]) * mar.scale.x, pos[2]) + pos[2]
+                    mar.pose.orientation.x = orien_a[0]
+                    mar.pose.orientation.y = orien_a[1]
+                    mar.pose.orientation.z = orien_a[2]
+                    mar.pose.orientation.w = orien_a[3]
                 else:
+                    mar.color.g = 0.5
+                    mar.color.r = mar.color.b = 0.7
+                    mar.scale.x = mar.scale.y = mar.scale.z = 1
                     mar.pose.position.x = pos[0]
                     mar.pose.position.y = pos[1]
                     mar.pose.position.z = pos[2]
-                    mar.mesh_resource = 'package://iai_kitchen/meshes/misc/bowl.stl'
-                mar.pose.orientation.x = orien[0]
-                mar.pose.orientation.y = orien[1]
-                mar.pose.orientation.z = orien[2]
-                mar.pose.orientation.w = orien[3]
-                return mar, pos[0], pos[1], pos[2]
+                    mar.mesh_resource = 'package://rviz_markers/meshes/gripper_wsg50.stl'
+                    mar.mesh_use_embedded_materials = True
+                    mar.pose.orientation.x = orien[0]
+                    mar.pose.orientation.y = orien[1]
+                    mar.pose.orientation.z = orien[2]
+                    mar.pose.orientation.w = orien[3]
+                return mar, pos[0], pos[1], pos[2], orien
 
     # Published the /tf for all objects and the markers (of the grasping poses)
     def publish_obj(self, obj_list):
@@ -202,12 +226,11 @@ class ObjectGraspingMarker():
             # Create markers for the grasping poses
             for n in range(poses):
                 markers[n] = Marker()
-                (markers[n], x, y, z) = ObjectGraspingMarker.poses_markers(self, obj, n)
+                (markers[n], x, y, z, orien) = ObjectGraspingMarker.poses_markers(self, obj, n)
                 self.grasp_poses[obj].append(markers[n].ns)
 
                 self.br.sendTransform((x, y, z),
-                                 (markers[n].pose.orientation.x, markers[n].pose.orientation.y,
-                                  markers[n].pose.orientation.z, markers[n].pose.orientation.w),
+                                 (orien[0], orien[1], orien[2], orien[3]),
                                  rospy.Time.now(),
                                  markers[n].ns, obj)
 
@@ -250,14 +273,16 @@ class ObjectGraspingMarker():
 # Main function
 def main():
     rospy.init_node('object_loader', anonymous=True)
-    r = rospy.Rate(1)
+    r = rospy.Rate(5)
     cl = ObjectGraspingMarker()
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(cl.clear_v, 'interval', seconds=2)
+    scheduler.start()
 
     marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
 
     while not rospy.is_shutdown():
         markerArray = MarkerArray()
-        matching = []
 
         # Find frames that are object markers
         matching = cl.match_objects()
@@ -282,7 +307,11 @@ def main():
         table = cl.create_table()
         markerArray.markers.append(table)
 
-        print matching
+        #threading.Timer(2, cl.clear_v()).start()
+
+        #var_clear.remove()
+
+        #scheduler.shutdown()
 
         marker_pub.publish(markerArray)
         r.sleep()

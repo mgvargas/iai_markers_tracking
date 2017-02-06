@@ -17,3 +17,10 @@ cd ..                                      # go to workspace directory
 catkin_make                                # build packages
 source ~/obj_grasp_ws/devel/setup.bash     # source new overlay
 ```
+
+Install ```apscheduler``` for Python:
+```
+sudo apt install python-pip					# Install pip
+pip install apscheduler							# Install apscheduler
+```
+
