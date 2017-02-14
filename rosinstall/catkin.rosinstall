@@ -1,6 +1,6 @@
 - git: 
     local-name: rviz_markers
-    uri: https://github.com/mgvargas/rviz_markers.git
+    uri: https://github.com/mgvargas/iai_markers_tracking.git
     version: master
 - git:
     local-name: iai_robots
@@ -9,4 +9,8 @@
 - git:
     local-name: iai_boxy_sim
     uri: https://github.com/airballking/iai_boxy_sim.git
+    version: master
+- git:
+    local-name: chili_markers
+    uri: https://github.com/chili-epfl/ros_markers
     version: master
