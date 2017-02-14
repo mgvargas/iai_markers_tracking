@@ -11,6 +11,6 @@
     uri: https://github.com/airballking/iai_boxy_sim.git
     version: master
 - git:
-    local-name: chili_markers
+    local-name: ros_markers
     uri: https://github.com/chili-epfl/ros_markers
     version: master
