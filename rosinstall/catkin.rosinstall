@@ -1,5 +1,5 @@
 - git: 
-    local-name: rviz_markers
+    local-name: iai_markers_tracking
     uri: https://github.com/mgvargas/iai_markers_tracking.git
     version: master
 - git:
