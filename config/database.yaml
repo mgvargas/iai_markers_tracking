@@ -1,83 +1,114 @@
 cup:
  id: 01
- marker: [marker1, marker7]
+ marker: [marker1, marker10]
  marker1:
-  position: [0.05,0.05,0.08]
-  orientation: [0,0,0,1]
- marker7:
-  position: [0.05,-0.05,0.1]
-  orientation: [0,0,0,1]
- mesh: package://iai_kitchen/meshes/misc/Sink.dae
+  position: [-0.00353,-0.0421,0.05279]
+  orientation: [ 0.66867015,  0.00324435, -0.00291764,  0.74354636]
+ marker10:
+  position: [-0.01, -0.043, 0.053]
+  orientation: [ 0.09968272,  0.66301435,  0.72785104,  0.1439034 ]
+ mesh: package://rviz_markers/meshes/cup_green.dae
  scale: 1.0
+ gripper_openning: 0.0055
  grasping_poses:
     - p_id: gp1
-      position: [0.1,0.1,0]
-      orientation: [0,0,0,1]
+      position: [0.058,0.0,0.048]
+      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
+      orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp2
-      position: [-0.1,-0.1,0]
-      orientation: [0,0,0,1]
+      position: [0.058,0.0,0.048]
+      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
+      orientation: [0.70710678, 0.0, 0.0, 0.70710678]
+    - p_id: gp3
+      position: [-0.036,-0.0,0.06]
+      orientation_arrow: [-1.0, 0.0, 1.0, 0.00001]
+      orientation: [0,1.0,0.0,0.000001]
 
 bowl:
  id: 02
- marker: [marker2]
- marker2:
-  position: [0.25,0.05,0.15]
-  orientation: [0,0,0,1]
- mesh: package://rviz_markers/meshes/bowl.dae
+ marker: [marker5, marker7]
+ marker5:
+  position: [-0.003, -0.101, 0.08429]
+  orientation: [-0.57372522,  0.41332719,  0.57372522,  0.41332719]
+ marker7:
+  position: [0.01,0.12,0.0867]
+  orientation: [-0.10830014,  0.63152051,  0.74354782, -0.19128399]
+ mesh: package://rviz_markers/meshes/bowl2.dae
  scale: 1.0 # if cm = 1, m = 0.001
+ gripper_openning: 0.007
  grasping_poses:
     - p_id: gp1
-      position: [0.18,0,0.12]
+      position: [0.14,0,0.1]
       orientation_arrow: [0,0,1,0.00001]
       orientation: [0,-0.7071,0,0.7071]
     - p_id: gp2
-      position: [-0.18,0,0.12]
+      position: [-0.14,0,0.1]
       orientation_arrow: [0,0,0,1]
       orientation: [0,0.7071,0,0.7071]
     - p_id: gp3
-      position: [-0.16,-0.05,0.12]
+      position: [-0.14,-0.04,0.1]
       orientation_arrow: [0.0,0.0,0.4999,0.8661]
       orientation: [-0.35347752, 0.61241624,  0.35347752,  0.61241624]
     - p_id: gp4
-      position: [-0.16,0.05,0.12]
+      position: [-0.14,0.03,0.1]
       orientation_arrow: [0.0,0.0,-0.4999,0.8661]
       orientation: [0.35347752, 0.61241624, -0.35347752,  0.61241624]
     - p_id: gp5
-      position: [0.16,0.05,0.12]
+      position: [0.14,0.04,0.1]
       orientation_arrow: [0.0,0.0,-0.8659,0.5002]
       orientation: [0.61228901,  0.35369784, -0.61228901,  0.35369784]
     - p_id: gp6
-      position: [0.16,-0.05,0.12]
+      position: [0.14,-0.03,0.1]
       orientation_arrow: [0.0,0.0,0.8659,0.5002]
       orientation: [-0.61228901,  0.35369784, 0.61228901,  0.35369784]
 
 mondamin:
  id: 03
- marker: [marker4, marker10]
- marker4:
+ marker: [marker3, marker6]
+ marker3:
   position: [-0.03,0.05,0.15]
-  orientation: [0,0,0,1]
- marker10:
+  orientation: [ 0.5,  0.5,  0.5,  0.5]
+ marker6:
   position: [-0.05,-0.05,0.15]
   orientation: [0,0,0,1]
   position: [-0.12,-0.1,0]
   orientation: [-0.0666,0.1609,0.3768,0.9098]
  mesh: package://rviz_markers/meshes/mondamin.dae
  scale: .001 # if cm = 1, m = 0.001
+ gripper_openning: 0.05
  grasping_poses:
     - p_id: gp1
-      position: [0,-0.03,0.15]
+      position: [0,-0.02,0.15]
       orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
       orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp2
-      position: [0,-0.03,0.07]
+      position: [0,-0.02,0.07]
       orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
       orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp3
-      position: [0,0.03,0.07]
+      position: [0,0.02,0.07]
       orientation_arrow: [0.0, 0.0,-0.70710678, 0.70710678]
       orientation: [ 0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp4
-      position: [0,0.03,0.15]
+      position: [0,0.02,0.15]
       orientation_arrow: [0.0, 0.0, -0.70710678, 0.70710678]
       orientation: [ 0.70710678, 0.0, 0.0, 0.70710678]
+
+knorr_tomate:
+ id: 04
+ marker: [marker4]
+ marker4:
+  position: [0.02,-0.025,0.0232]
+  orientation: [-0.00654994,  0.70608857,  0.7080631 ,  0.00653168]
+ mesh: package://rviz_markers/meshes/knorr_tomate.dae
+ scale: 1.0
+ gripper_openning: 0.05
+ grasping_poses:
+    - p_id: gp1
+      position: [0.03,0.0,0.05]
+      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
+      orientation: [0.5, -0.5, -0.5,  0.5]
+    - p_id: gp2
+      position: [-0.03,0.0,0.05]
+      orientation_arrow: [-1.0, 0.0, 1.0, 0.00001]
+      orientation:  [ 0.5,  0.5, 0.5,  0.5]

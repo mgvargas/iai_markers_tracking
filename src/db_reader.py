@@ -21,18 +21,18 @@ from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from rviz_markers.srv import ObjGrasping
 from tf.msg import tfMessage
-#from apscheduler.scheduler import Scheduler
 from apscheduler.schedulers.background import BackgroundScheduler
-import threading
 import math
 import tf
 import yaml
 import rospkg
+import copy
 
 class ObjectGraspingMarker():
     grasp_poses = {}
 
     def __init__(self):
+        rospy.init_node('object_loader', anonymous=True)
         self.s = rospy.Service('object_grasping_poses', ObjGrasping, self.list_grasping_poses)
         self.listener = tf.TransformListener(False, rospy.Duration(1))
         self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback)
@@ -155,11 +155,7 @@ class ObjectGraspingMarker():
                 #mar.type = mar.ARROW
                 mar.type = mar.MESH_RESOURCE
                 mar.action = mar.ADD
-                mar.scale.x = 0.1
-                mar.scale.y = mar.scale.z = 0.02
-                mar.color.b = 0.8
-                mar.color.r = mar.color.g = 0.5
-                mar.color.a = 0.95
+                mar.color.a = 0.9
                 mar.lifetime = rospy.Time(1)
                 # Marker pose
                 pos = yaml_file[k]['grasping_poses'][n]['position']
@@ -182,24 +178,47 @@ class ObjectGraspingMarker():
                 else:
                     mar.color.g = 0.5
                     mar.color.r = mar.color.b = 0.7
-                    mar.scale.x = mar.scale.y = mar.scale.z = 1
+                    mar.scale.x = mar.scale.y = mar.scale.z = 0.01
                     mar.pose.position.x = pos[0]
                     mar.pose.position.y = pos[1]
                     mar.pose.position.z = pos[2]
-                    mar.mesh_resource = 'package://rviz_markers/meshes/gripper_wsg50.stl'
+                    mar.mesh_resource = 'package://rviz_markers/meshes/gripper_base.stl'
                     mar.mesh_use_embedded_materials = True
                     mar.pose.orientation.x = orien[0]
                     mar.pose.orientation.y = orien[1]
                     mar.pose.orientation.z = orien[2]
                     mar.pose.orientation.w = orien[3]
-                return mar, pos[0], pos[1], pos[2], orien
+                    finger1 = copy.deepcopy(mar)
+                    finger1.mesh_resource = 'package://rviz_markers/meshes/gripper_finger.stl'
+                    finger1.ns = mar.ns + '_f1'
+                    finger1.id = yaml_file[k]['id'] * 1000 + n
+                    finger1.header.frame_id = obj + '_' + yaml_file[k]['grasping_poses'][n]['p_id']
+                    finger1.pose.position.x = -(yaml_file[k]['gripper_openning'])/2
+                    finger1.pose.position.y = 0
+                    finger1.pose.position.z = 0
+                    finger1.pose.orientation.x = 0
+                    finger1.pose.orientation.y = 0
+                    finger1.pose.orientation.z = 0
+                    finger1.pose.orientation.w = 1
+                    finger2 = copy.deepcopy(finger1)
+                    finger2.pose.position.x = (yaml_file[k]['gripper_openning']) / 2
+                    finger2.pose.position.y = 0.005
+                    finger2.pose.orientation.z = 1
+                    finger2.pose.orientation.w = 0.00001
+                    finger2.ns = mar.ns + '_f2'
+                    finger1.id = yaml_file[k]['id'] * 2000 + n
+                return mar, pos[0], pos[1], pos[2], orien, finger1, finger2
 
     # Published the /tf for all objects and the markers (of the grasping poses)
     def publish_obj(self, obj_list):
         found_obj = {}
         markers = {}
+        finger1 ={}
+        finger2 = {}
         for obj in obj_list:
             markers[obj] = {}
+            finger1[obj] = {}
+            finger2[obj] = {}
             found_obj[obj] = Marker()
             self.grasp_poses[obj] = []
             (found_obj[obj], poses) = ObjectGraspingMarker.obj_pos_orient(self, obj)
@@ -214,7 +233,9 @@ class ObjectGraspingMarker():
             # Create markers for the grasping poses
             for n in range(poses):
                 markers[obj][n] = Marker()
-                (markers[obj][n], x, y, z, orien) = ObjectGraspingMarker.poses_markers(self, obj, n)
+                finger1[obj][n] = Marker()
+                finger2[obj][n] = Marker()
+                (markers[obj][n], x, y, z, orien, finger1[obj][n], finger2[obj][n]) = ObjectGraspingMarker.poses_markers(self, obj, n)
                 self.grasp_poses[obj].append(markers[obj][n].ns)
 
                 self.br.sendTransform((x, y, z),
@@ -222,7 +243,7 @@ class ObjectGraspingMarker():
                                  rospy.Time.now(),
                                  markers[obj][n].ns, obj)
 
-        return  markers, found_obj
+        return  markers, found_obj, finger1, finger2
 
     #  ROS service for getting the name of the grasping poses of an object
     def list_grasping_poses(self, m):
@@ -260,9 +281,9 @@ class ObjectGraspingMarker():
 
 # Main function
 def main():
-    rospy.init_node('object_loader', anonymous=True)
-    r = rospy.Rate(1)
+    #rospy.init_node('object_loader', anonymous=True)
     cl = ObjectGraspingMarker()
+    r = rospy.Rate(10)
     scheduler = BackgroundScheduler()
     scheduler.add_job(cl.clear_v, 'interval', seconds=1)
     scheduler.start()
@@ -282,12 +303,14 @@ def main():
         obj_list = cl.find_obj(matching)
 
         # Get the transforms from the objects to the map frame
-        (markers, found_obj) = cl.publish_obj(obj_list)
+        (markers, found_obj, finger1, finger2) = cl.publish_obj(obj_list)
 
         for obj in found_obj:
             markerArray.markers.append(found_obj[obj])
             for n in markers[obj]:
                 markerArray.markers.append(markers[obj][n])
+                markerArray.markers.append(finger1[obj][n])
+                markerArray.markers.append(finger2[obj][n])
 
         # Publish a table, just for visualization
         table = cl.create_table()
