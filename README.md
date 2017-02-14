@@ -23,4 +23,26 @@ Install ```apscheduler``` for Python:
 sudo apt install python-pip					# Install pip
 pip install apscheduler							# Install apscheduler
 ```
+Install ```ArUco ROS``` and ```video_stream_opencv``` (if required):
+```
+	https://github.com/pal-robotics/aruco_ros				# Marker detection
+	https://github.com/ros-drivers/video_stream_opencv # Video streaming from webcam
+```
+
+# Running the code
+Run ```ArUco ROS``` and ```video_stream_opencv```:
+```
+   roslaunch aruco_ros double.launch
+	roslaunch video_stream_opencv camera.launch  # If no perceptionsystem is running
+```
+ just rename the ```camera_info``` and ```image``` topics to the ones provided by the camera. To visualize the result of the marker detection, run
+```
+ 	rosrun image_view image_view image:=/aruco_simple/result
+```
+Run ```db_reader.py``` from the ```rviz_marker``` package
+```
+	roslaunch rviz_markers db_reader.py
+```
+Run RVIZ and add a MarkerArray and Axes, change the reference frame to the camera reference frame.
+Place the objects with markers in front of the camera.
 
