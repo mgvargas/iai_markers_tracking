@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rviz_markers)
+project(iai_markers_tracking)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -104,7 +104,7 @@ generate_messages(
 catkin_package(
   CATKIN_DEPENDS message_runtime
 #  INCLUDE_DIRS include
-#  LIBRARIES rviz_markers
+#  LIBRARIES iai_markers_tracking
 #  CATKIN_DEPENDS roscpp visualization_msgs
 #  DEPENDS system_lib
 )
@@ -121,25 +121,25 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(rviz_markers
-#   src/${PROJECT_NAME}/rviz_markers.cpp
+# add_library(iai_markers_tracking
+#   src/${PROJECT_NAME}/iai_markers_tracking.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(rviz_markers ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(iai_markers_tracking ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(rviz_markers_node src/rviz_markers_node.cpp)
+# add_executable(iai_markers_tracking_node src/iai_markers_tracking_node.cpp)
 add_executable(basic_shapes src/basic_shapes.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(rviz_markers_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(iai_markers_tracking_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(rviz_markers_node
+# target_link_libraries(iai_markers_tracking_node
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(basic_shapes ${catkin_LIBRARIES})
@@ -159,7 +159,7 @@ target_link_libraries(basic_shapes ${catkin_LIBRARIES})
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS rviz_markers rviz_markers_node
+# install(TARGETS iai_markers_tracking iai_markers_tracking_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -184,7 +184,7 @@ target_link_libraries(basic_shapes ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rviz_markers.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_iai_markers_tracking.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

@@ -1,4 +1,4 @@
-# rviz_markers
+# iai_markers_tracking
 
 ## Installation 
 Using ```catkin_tools``` and ```wstool``` in a new workspace for ```ROS Kinetic``` installed on ```Ubuntu 16.04```:
@@ -9,7 +9,7 @@ mkdir -p ~/obj_grasp_ws/src                # create directory for workspace
 cd ~/obj_grasp_ws/src                      # go to workspace directory
 catkin_init_workspace                      # init workspace
 wstool init                                # init rosinstall
-wstool merge https://raw.githubusercontent.com/mgvargas/rviz_markers/master/rosinstall/catkin.rosinstall
+wstool merge https://raw.githubusercontent.com/mgvargas/iai_markers_tracking/master/rosinstall/catkin.rosinstall
                                            # update rosinstall file
 wstool update                              # pull source repositories
 rosdep install --ignore-src --from-paths . # install dependencies available through apt
@@ -39,9 +39,9 @@ Run ```ArUco ROS``` and ```video_stream_opencv```:
 ```
  	rosrun image_view image_view image:=/aruco_simple/result
 ```
-Run ```db_reader.py``` from the ```rviz_marker``` package
+Run ```db_reader.py``` from the ```iai_markers_tracking``` package
 ```
-	roslaunch rviz_markers db_reader.py
+	roslaunch iai_markers_tracking db_reader.py
 ```
 Run RVIZ and add a MarkerArray and Axes, change the reference frame to the camera reference frame.
 Place the objects with markers in front of the camera.
