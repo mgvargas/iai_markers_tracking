@@ -7,7 +7,7 @@ cup:
  marker10:
   position: [-0.01, -0.043, 0.053]
   orientation: [ 0.09968272,  0.66301435,  0.72785104,  0.1439034 ]
- mesh: package://rviz_markers/meshes/cup_green.dae
+ mesh: package://iai_markers_tracking/meshes/cup_green.dae
  scale: 1.0
  gripper_openning: 0.0055
  grasping_poses:
@@ -33,7 +33,7 @@ bowl:
  marker7:
   position: [0.01,0.12,0.0867]
   orientation: [-0.10830014,  0.63152051,  0.74354782, -0.19128399]
- mesh: package://rviz_markers/meshes/bowl2.dae
+ mesh: package://iai_markers_tracking/meshes/bowl2.dae
  scale: 1.0 # if cm = 1, m = 0.001
  gripper_openning: 0.007
  grasping_poses:
@@ -73,7 +73,7 @@ mondamin:
   orientation: [0,0,0,1]
   position: [-0.12,-0.1,0]
   orientation: [-0.0666,0.1609,0.3768,0.9098]
- mesh: package://rviz_markers/meshes/mondamin.dae
+ mesh: package://iai_markers_tracking/meshes/mondamin.dae
  scale: .001 # if cm = 1, m = 0.001
  gripper_openning: 0.05
  grasping_poses:
@@ -100,7 +100,7 @@ knorr_tomate:
  marker4:
   position: [0.02,-0.025,0.0232]
   orientation: [-0.00654994,  0.70608857,  0.7080631 ,  0.00653168]
- mesh: package://rviz_markers/meshes/knorr_tomate.dae
+ mesh: package://iai_markers_tracking/meshes/knorr_tomate.dae
  scale: 1.0
  gripper_openning: 0.05
  grasping_poses:

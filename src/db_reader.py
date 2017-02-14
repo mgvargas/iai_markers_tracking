@@ -78,7 +78,7 @@ class ObjectGraspingMarker():
     # Open database YAML file
     def op_file(self):
         rospack = rospkg.RosPack()
-        dir = rospack.get_path('rviz_markers') + '/config/database.yaml'
+        dir = rospack.get_path('iai_markers_tracking') + '/config/database.yaml'
         with open(dir, 'r') as f:
             try:
                 db_file = f.read()
@@ -182,14 +182,14 @@ class ObjectGraspingMarker():
                     mar.pose.position.x = pos[0]
                     mar.pose.position.y = pos[1]
                     mar.pose.position.z = pos[2]
-                    mar.mesh_resource = 'package://rviz_markers/meshes/gripper_base.stl'
+                    mar.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_base.stl'
                     mar.mesh_use_embedded_materials = True
                     mar.pose.orientation.x = orien[0]
                     mar.pose.orientation.y = orien[1]
                     mar.pose.orientation.z = orien[2]
                     mar.pose.orientation.w = orien[3]
                     finger1 = copy.deepcopy(mar)
-                    finger1.mesh_resource = 'package://rviz_markers/meshes/gripper_finger.stl'
+                    finger1.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_finger.stl'
                     finger1.ns = mar.ns + '_f1'
                     finger1.id = yaml_file[k]['id'] * 1000 + n
                     finger1.header.frame_id = obj + '_' + yaml_file[k]['grasping_poses'][n]['p_id']
