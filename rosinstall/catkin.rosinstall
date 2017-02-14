@@ -14,3 +14,7 @@
     local-name: ros_markers
     uri: https://github.com/chili-epfl/ros_markers
     version: master
+- git:
+    local-name: opencv
+    uri: https://github.com/opencv/opencv
+    version: master    
