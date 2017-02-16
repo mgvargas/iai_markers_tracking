@@ -18,3 +18,7 @@
     local-name: opencv
     uri: https://github.com/opencv/opencv
     version: master    
+- git:
+    local-name: video_stream_opencv
+    uri: https://github.com/mgvargas/video_stream_opencv
+    version: master  
