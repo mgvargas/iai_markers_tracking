@@ -22,3 +22,15 @@
     local-name: video_stream_opencv
     uri: https://github.com/mgvargas/video_stream_opencv
     version: master  
+- git:
+    local-name: ros_control_boilerplate
+    uri: https://github.com/airballking/ros_control_boilerplate.git
+    version: fix-joint-limits-velocity-mode
+- git:
+    local-name: ros_control
+    uri: https://github.com/airballking/ros_control.git
+    version: fix-velocity-joint-saturate-interface
+- git:
+    local-name: giskard_msgs
+    uri: https://github.com/semroco/giskard_msgs.git
+    version: master
