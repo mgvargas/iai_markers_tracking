@@ -1,12 +1,12 @@
 cup:
  id: 01
- marker: [marker1, marker10]
- marker1:
-  position: [-0.00353,-0.0421,0.05279]
-  orientation: [ 0.66867015,  0.00324435, -0.00291764,  0.74354636]
- marker10:
-  position: [-0.01, -0.043, 0.053]
-  orientation: [ 0.09968272,  0.66301435,  0.72785104,  0.1439034 ]
+ marker: [tag_1, tag_2]
+ tag_1:
+  position: [0.003, 0.069, 0.03]
+  orientation: [ 0.67025139,  0.01696292, -0.01532717,  0.74178191]
+ tag_2:
+  position: [0.005, 0.0678, 0.0345]
+  orientation: [ 0.06118498,  0.74043417, -0.66587137,  0.06803634]
  mesh: package://iai_markers_tracking/meshes/cup_green.dae
  scale: 1.0
  gripper_openning: 0.0055
@@ -26,13 +26,14 @@ cup:
 
 bowl:
  id: 02
- marker: [marker5, marker7]
- marker5:
-  position: [-0.003, -0.101, 0.08429]
-  orientation: [-0.57372522,  0.41332719,  0.57372522,  0.41332719]
- marker7:
-  position: [0.01,0.12,0.0867]
-  orientation: [-0.10830014,  0.63152051,  0.74354782, -0.19128399]
+ marker: [tag_3, tag_4]
+ tag_3:
+  position: [0.0036, 0.11929, -0.0929]
+  orientation: [ 0.74357821,  0.18113401, -0.22308415,  0.60375109]
+ tag_4:
+  position: [0.015,0.109,-0.088]
+  orientation: [-0.19057887,  0.73316702, -0.61150239, -0.22849648]
+
  mesh: package://iai_markers_tracking/meshes/bowl2.dae
  scale: 1.0 # if cm = 1, m = 0.001
  gripper_openning: 0.007
@@ -64,11 +65,11 @@ bowl:
 
 mondamin:
  id: 03
- marker: [marker3, marker6]
- marker3:
+ marker: [tag_5, tag_6]
+ tag_5: #3
   position: [-0.03,0.05,0.15]
   orientation: [ 0.5,  0.5,  0.5,  0.5]
- marker6:
+ tag_6: # 6
   position: [-0.05,-0.05,0.15]
   orientation: [0,0,0,1]
   position: [-0.12,-0.1,0]
@@ -96,10 +97,10 @@ mondamin:
 
 knorr_tomate:
  id: 04
- marker: [marker4]
- marker4:
-  position: [0.02,-0.025,0.0232]
-  orientation: [-0.00654994,  0.70608857,  0.7080631 ,  0.00653168]
+ marker: [tag_0]
+ tag_0:
+  position: [-0.006,0.035,0.0232]
+  orientation: [-0.00653739,  0.70744666, -0.70670621, -0.00654424]
  mesh: package://iai_markers_tracking/meshes/knorr_tomate.dae
  scale: 1.0
  gripper_openning: 0.05

@@ -89,7 +89,7 @@ def main():
         quaternion1 = tf.transformations.quaternion_from_euler(math.radians(90), 0, 0)
         quaternion2 = tf.transformations.quaternion_from_euler(math.radians(78), math.radians(-5), 0)
         quaternion3 = tf.transformations.quaternion_from_euler(0, 0, math.pi/2*0)
-        quaternion4 = tf.transformations.quaternion_from_euler(0, 0, 0)
+        quaternion4 = tf.transformations.quaternion_from_euler(-math.pi/2, 0, 0)
         marker.pose.position.x = - (x/2 + offset + marker.scale.x)*0
         marker.pose.position.y = 0.0
         marker.pose.position.z = 0.0
@@ -112,7 +112,7 @@ def main():
         marker3.pose.orientation.z = quaternion3[2]
         marker3.pose.orientation.w = quaternion3[3]
 
-        br.sendTransform((marker2.pose.position.x, marker2.pose.position.y, marker2.pose.position.z),
+        '''br.sendTransform((marker2.pose.position.x, marker2.pose.position.y, marker2.pose.position.z),
                         (quaternion1[0], quaternion1[1], quaternion1[2], quaternion1[3]),
                         rospy.Time.now(),
                         "marker4",
@@ -135,9 +135,9 @@ def main():
                          (quaternion1[0], quaternion1[1], quaternion1[2], quaternion1[3]),
                          rospy.Time.now(),
                          "marker3",
-                         "camera_optical_frame")
+                         "camera_optical_frame")'''
 
-        br.sendTransform((-1, -2, 2),
+        br.sendTransform((-1, -1, 2),
                          (quaternion4[0], quaternion4[1], quaternion4[2], quaternion4[3]),
                         rospy.Time.now(),
                         "camera_optical_frame","map" )

@@ -4,19 +4,29 @@
     <!-- By default, we are not in debug mode -->
     <arg name="debug" default="false" />
 
-    <!--rosparam file="$(find rviz_markers)/config/database.yaml" command="load"/-->
+    <arg name="camera_frame_id" default="camera_optical_frame" />
 
     <!-- Run Rviz and load the default config to see the active objects -->
-    <include file="$(find rviz_markers)/launch/markers_rviz.launch">
+    <include file="$(find iai_markers_tracking)/launch/markers_rviz.launch">
       <arg name="config" value="true"/>
       <arg name="debug" value="$(arg debug)"/>
     </include>
 
-    <node name="objects" pkg="rviz_markers" type="db_reader.py" respawn="false" output="screen"/>
+    <!-- Object detection and database -->
+    <node name="obj_database" pkg="iai_markers_tracking" type="db_reader.py" respawn="false" output="screen"/>
+    <include file="$(find video_stream_opencv)/launch/camera.launch">
+      <arg name="frame_id" value="$(arg camera_frame_id)"/>
+    </include>
+    <include file="$(find ros_markers)/launch/detect.launch">
+      <arg name="omit_other_tags" value="false"/>
+      <arg name="default_marker_size" value="28.5" />
+      <arg name="image_topic" value="camera/image_raw"/>
+    </include>
 
-    <include file="$(find iai_boxy_sim)/launch/boxy.launch"/>
+    <!-- Boxy simulation >
+    <include file="$(find iai_boxy_sim)/launch/boxy.launch"/-->
 
-   <!-- Testing (publishes markers in tf/
-   <node name="object_poses" pkg="rviz_markers" type="object_w_mark_py.py" respawn="false" output="screen"/-->
+   <!-- Testing (publishes markers in tf/ -->
+   <node name="object_poses" pkg="iai_markers_tracking" type="object_w_mark_py.py" respawn="false" output="screen"/>
 
 </launch>

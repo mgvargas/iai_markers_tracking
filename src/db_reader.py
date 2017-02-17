@@ -21,6 +21,7 @@ from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from rviz_markers.srv import ObjGrasping
 from tf.msg import tfMessage
+from sensor_msgs.msg import CameraInfo
 from apscheduler.schedulers.background import BackgroundScheduler
 import math
 import tf
@@ -36,6 +37,7 @@ class ObjectGraspingMarker():
         self.s = rospy.Service('object_grasping_poses', ObjGrasping, self.list_grasping_poses)
         self.listener = tf.TransformListener(False, rospy.Duration(1))
         self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback)
+        self.camera_lis = rospy.Subscriber("/camera/camera_info", CameraInfo, self.callback_camera)
         self.br = tf.TransformBroadcaster()
         self.markerArray = MarkerArray()
         self.frame_st = {'map'}
@@ -46,14 +48,17 @@ class ObjectGraspingMarker():
         str_data = data.transforms[0].child_frame_id
         self.frame_st.update({str_data})
 
+    def callback_camera(self, data):
+        self.camera_frame = data.header.frame_id
+
     def clear_v(self):
         self.frame_st = {}
         self.frame_st = {'map'}
 
     # Read all frames published in /tf and finds markers
     def match_objects(self):
-        matching = [s for s in self.frame_st if "marker" in s]
-        return matching
+        self.matching = [s for s in self.frame_st if "tag_" in s]
+        return self.matching
 
     # Quaternion multiplication (input as tuples)
     def q_mult(self, q1, q2):
@@ -101,45 +106,52 @@ class ObjectGraspingMarker():
 
     # Creates the object as a Marker() (pose is wrt /camera_optical_frame)
     def obj_pos_orient(self, obj):
-        object = Marker()
+        found_object = Marker()
+        poses = 0
         yaml_file = self.yaml_file
 
         for k in yaml_file.keys():
             if obj == k:  # For object in database
                 a = yaml_file[k]['marker']
                 for mar in a:
-                    try:
-                        # Pose of object wrt /camera
-                        (trans, rot_cam) = self.listener.lookupTransform('/camera_optical_frame', mar, rospy.Time(0))
-                        object.pose.position.x = trans[0] - yaml_file[k][mar]['position'][0]
-                        object.pose.position.y = trans[1] - yaml_file[k][mar]['position'][1]
-                        object.pose.position.z = trans[2] - yaml_file[k][mar]['position'][2]
-                        rot_marker = tuple(yaml_file[k][mar]['orientation'])
-                        rot_ob_mark = ObjectGraspingMarker.q_inv(self, rot_marker)
-                        rot1 = ObjectGraspingMarker.q_mult(self, rot_cam, rot_ob_mark)
-                        object.pose.orientation.x = rot1[0]
-                        object.pose.orientation.y = rot1[1]
-                        object.pose.orientation.z = rot1[2]
-                        object.pose.orientation.w = rot1[3]
-                    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-                        continue
-                    else: #If no exception
-                        # Object properties
-                        object.header.frame_id = 'camera_optical_frame'
-                        object.header.stamp = rospy.Time.now()
-                        object.ns = obj
-                        object.id = yaml_file[k]['id']
-                        object.type = object.MESH_RESOURCE
-                        object.action = object.ADD
-                        object.mesh_resource = yaml_file[k]['mesh']
-                        object.mesh_use_embedded_materials = True
-                        object.scale.x = object.scale.y = object.scale.z = yaml_file[k]['scale']
-                        object.color.r = object.color.g = object.color.b = 0
-                        object.color.a = 0
-                        object.lifetime = rospy.Time(1)
-                        poses = len(yaml_file[k]['grasping_poses'])
+                    for tag in self.matching:
+                        if tag == mar: # if marker in object = marker found
+                            rot_marker = yaml_file[k][mar]['orientation']
+                            pos_marker = yaml_file[k][mar]['position']
+                            # Publish object tf
+                            self.br.sendTransform((pos_marker[0], pos_marker[1], pos_marker[2]),
+                                                  (rot_marker[0], rot_marker[1], rot_marker[2], rot_marker[3]),
+                                                  rospy.Time.now(), obj, mar)
+                            try:
+                                # Pose of object wrt /camera
+                                (trans, rot_cam) = self.listener.lookupTransform(self.camera_frame, obj, rospy.Time(0))
+                            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                                return found_object, poses
+                            # If no exception
+                            else:
+                                # Object marker properties
+                                found_object.pose.position.x = trans[0]
+                                found_object.pose.position.y = trans[1]
+                                found_object.pose.position.z = trans[2]
+                                found_object.pose.orientation.x = rot_cam[0]
+                                found_object.pose.orientation.y = rot_cam[1]
+                                found_object.pose.orientation.z = rot_cam[2]
+                                found_object.pose.orientation.w = rot_cam[3]
+                                found_object.header.frame_id = self.camera_frame
+                                found_object.header.stamp = rospy.Time.now()
+                                found_object.ns = obj
+                                found_object.id = yaml_file[k]['id']
+                                found_object.type = found_object.MESH_RESOURCE
+                                found_object.action = found_object.ADD
+                                found_object.mesh_resource = yaml_file[k]['mesh']
+                                found_object.mesh_use_embedded_materials = True
+                                found_object.scale.x = found_object.scale.y = found_object.scale.z = yaml_file[k]['scale']
+                                found_object.color.r = found_object.color.g = found_object.color.b = 0
+                                found_object.color.a = 0
+                                found_object.lifetime = rospy.Time(1)
+                                poses = len(yaml_file[k]['grasping_poses'])
 
-                        return object, poses
+                            return found_object, poses
 
     # Create markers for each grasping pose of an object
     def poses_markers(self, obj, n):
@@ -155,7 +167,7 @@ class ObjectGraspingMarker():
                 #mar.type = mar.ARROW
                 mar.type = mar.MESH_RESOURCE
                 mar.action = mar.ADD
-                mar.color.a = 0.9
+                mar.color.a = 0.2
                 mar.lifetime = rospy.Time(1)
                 # Marker pose
                 pos = yaml_file[k]['grasping_poses'][n]['position']
@@ -222,13 +234,6 @@ class ObjectGraspingMarker():
             found_obj[obj] = Marker()
             self.grasp_poses[obj] = []
             (found_obj[obj], poses) = ObjectGraspingMarker.obj_pos_orient(self, obj)
-            ob_pose = found_obj[obj].pose
-
-            # Publish tf
-            self.br.sendTransform((ob_pose.position.x, ob_pose.position.y, ob_pose.position.z),
-                             (ob_pose.orientation.x, ob_pose.orientation.y, ob_pose.orientation.z,
-                              ob_pose.orientation.w),
-                             rospy.Time.now(), obj, "camera_optical_frame")
 
             # Create markers for the grasping poses
             for n in range(poses):
@@ -243,7 +248,7 @@ class ObjectGraspingMarker():
                                  rospy.Time.now(),
                                  markers[obj][n].ns, obj)
 
-        return  markers, found_obj, finger1, finger2
+        return markers, found_obj, finger1, finger2
 
     #  ROS service for getting the name of the grasping poses of an object
     def list_grasping_poses(self, m):
@@ -283,9 +288,9 @@ class ObjectGraspingMarker():
 def main():
     #rospy.init_node('object_loader', anonymous=True)
     cl = ObjectGraspingMarker()
-    r = rospy.Rate(10)
+    r = rospy.Rate(50)
     scheduler = BackgroundScheduler()
-    scheduler.add_job(cl.clear_v, 'interval', seconds=1)
+    scheduler.add_job(cl.clear_v, 'interval', seconds=0.5)
     scheduler.start()
 
     marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
@@ -313,8 +318,8 @@ def main():
                 markerArray.markers.append(finger2[obj][n])
 
         # Publish a table, just for visualization
-        table = cl.create_table()
-        markerArray.markers.append(table)
+        #table = cl.create_table()
+        #markerArray.markers.append(table)
 
         marker_pub.publish(markerArray)
         r.sleep()
