@@ -33,7 +33,6 @@ bowl:
  tag_4:
   position: [0.015,0.109,-0.088]
   orientation: [-0.19057887,  0.73316702, -0.61150239, -0.22849648]
-
  mesh: package://iai_markers_tracking/meshes/bowl2.dae
  scale: 1.0 # if cm = 1, m = 0.001
  gripper_openning: 0.007
@@ -67,13 +66,11 @@ mondamin:
  id: 03
  marker: [tag_5, tag_6]
  tag_5: #3
-  position: [-0.03,0.05,0.15]
-  orientation: [ 0.5,  0.5,  0.5,  0.5]
+  position: [0.01,0.07,0.02]
+  orientation: [ 0.5,  0.5, -0.5,  0.5]
  tag_6: # 6
-  position: [-0.05,-0.05,0.15]
-  orientation: [0,0,0,1]
-  position: [-0.12,-0.1,0]
-  orientation: [-0.0666,0.1609,0.3768,0.9098]
+  position: [0.015,0.08,0.01]
+  orientation: [-0.5, 0.5, -0.5, -0.5]
  mesh: package://iai_markers_tracking/meshes/mondamin.dae
  scale: .001 # if cm = 1, m = 0.001
  gripper_openning: 0.05
