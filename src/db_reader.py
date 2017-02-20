@@ -318,8 +318,8 @@ def main():
                 markerArray.markers.append(finger2[obj][n])
 
         # Publish a table, just for visualization
-        #table = cl.create_table()
-        #markerArray.markers.append(table)
+        table = cl.create_table()
+        markerArray.markers.append(table)
 
         marker_pub.publish(markerArray)
         r.sleep()

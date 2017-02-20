@@ -3,6 +3,7 @@
 
     <!-- By default, we are not in debug mode -->
     <arg name="debug" default="false" />
+    <arg name="sim" default="true" />
 
     <arg name="camera_frame_id" default="camera_optical_frame" />
 
@@ -12,21 +13,25 @@
       <arg name="debug" value="$(arg debug)"/>
     </include>
 
+    <!-- Testing (publishes markers in tf/ -->
+    <group if="$(arg sim)">
+        <node name="object_poses" pkg="iai_markers_tracking" type="object_w_mark_py.py" respawn="false" output="screen"/>
+    </group>
+
     <!-- Object detection and database -->
     <node name="obj_database" pkg="iai_markers_tracking" type="db_reader.py" respawn="false" output="screen"/>
-    <include file="$(find video_stream_opencv)/launch/camera.launch">
-      <arg name="frame_id" value="$(arg camera_frame_id)"/>
-    </include>
-    <include file="$(find ros_markers)/launch/detect.launch">
-      <arg name="omit_other_tags" value="false"/>
-      <arg name="default_marker_size" value="28.5" />
-      <arg name="image_topic" value="camera/image_raw"/>
-    </include>
+    <group unless="$(arg sim)">
+        <include file="$(find video_stream_opencv)/launch/camera.launch">
+          <arg name="frame_id" value="$(arg camera_frame_id)"/>
+        </include>
+        <include file="$(find ros_markers)/launch/detect.launch">
+          <arg name="omit_other_tags" value="false"/>
+          <arg name="default_marker_size" value="28.5" />
+          <arg name="image_topic" value="camera/image_raw"/>
+        </include>
+    </group>
 
     <!-- Boxy simulation >
     <include file="$(find iai_boxy_sim)/launch/boxy.launch"/-->
-
-   <!-- Testing (publishes markers in tf/ -->
-   <node name="object_poses" pkg="iai_markers_tracking" type="object_w_mark_py.py" respawn="false" output="screen"/>
 
 </launch>
