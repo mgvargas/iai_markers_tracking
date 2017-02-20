@@ -40,11 +40,11 @@ bowl:
     - p_id: gp1
       position: [0.14,0,0.1]
       orientation_arrow: [0,0,1,0.00001]
-      orientation: [0,-0.7071,0,0.7071]
+      orientation: [0.000001,-0.70710678,0,0.70710678]
     - p_id: gp2
       position: [-0.14,0,0.1]
       orientation_arrow: [0,0,0,1]
-      orientation: [0,0.7071,0,0.7071]
+      orientation: [0.00001,0.70710678,0,0.70710678]
     - p_id: gp3
       position: [-0.14,-0.04,0.1]
       orientation_arrow: [0.0,0.0,0.4999,0.8661]
