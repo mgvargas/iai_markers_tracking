@@ -24,7 +24,7 @@ def main():
         markerArray = MarkerArray()
 
         #----- Object properties
-        # Set the frame ID and timestamp.  See the TF tutorials for information on these.
+        # Set the frame ID and timestamp.
         mesh.header.frame_id = "/map"
         mesh.header.stamp = rospy.Time.now()
 
@@ -32,8 +32,6 @@ def main():
         # Any marker sent with the same namespace and id will overwrite the old one
         mesh.ns = "mesh_test"
         mesh.id = 0
-
-        # Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
         mesh.type = marker.MESH_RESOURCE
         mesh.mesh_resource = "package://iai_kitchen/meshes/misc/bowl.stl"
         mesh.mesh_use_embedded_materials = True
@@ -42,7 +40,7 @@ def main():
         mesh.action = marker.ADD
         mesh.scale.x = mesh.scale.y = mesh.scale.z = 1.0
 
-        # Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
+        # Set the pose of the marker.
         quaternion = tf.transformations.quaternion_from_euler(math.radians(90), math.radians(0), 0)
         x = 0.39
         y = 0.31
@@ -57,9 +55,7 @@ def main():
         # Set the scale of the marker -- 1x1x1 here means 1m on a side
         mesh.scale.x = mesh.scale.y = mesh.scale.z = 1.0
         mesh.lifetime = rospy.Time(1)
-
-        # Set the color -- be sure to set alpha to something non-zero!
-        mesh.color.r = mesh.color.g = mesh.color.b = 0.8
+        mesh.color.r = mesh.color.g = mesh.color.b = 0.0
         mesh.color.a = 1.0
 
         #marker.lifetime = rospy.Duration();
@@ -150,9 +146,9 @@ def main():
         camera_pub.publish(camera)
 
         # Publish the markers
-        markerArray.markers.append(marker)
-        markerArray.markers.append(marker2)
-        markerArray.markers.append(marker3)
+        #markerArray.markers.append(marker)
+        #markerArray.markers.append(marker2)
+        #markerArray.markers.append(marker3)
         markerArray.markers.append(mesh)
         #marker_pub.publish(markerArray)
 
