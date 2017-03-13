@@ -17,17 +17,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import rospy
-from visualization_msgs.msg import Marker
-from visualization_msgs.msg import MarkerArray
-from rviz_markers.srv import ObjGrasping
-from tf.msg import tfMessage
-from sensor_msgs.msg import CameraInfo
-from apscheduler.schedulers.background import BackgroundScheduler
 import math
 import tf
 import yaml
 import rospkg
 import copy
+from tf.msg import tfMessage
+from sensor_msgs.msg import CameraInfo
+from visualization_msgs.msg import Marker
+from visualization_msgs.msg import MarkerArray
+from iai_markers_tracking.msg import Object
+from iai_markers_tracking.srv import ObjGrasping
+from apscheduler.schedulers.background import BackgroundScheduler
+
 
 class ObjectGraspingMarker():
     grasp_poses = {}
@@ -38,17 +40,23 @@ class ObjectGraspingMarker():
         self.listener = tf.TransformListener(False, rospy.Duration(1))
         self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback)
         self.camera_lis = rospy.Subscriber("/camera/camera_info", CameraInfo, self.callback_camera)
+        self.object_pub = rospy.Publisher('found_objects', Object, queue_size=20)
         self.br = tf.TransformBroadcaster()
+
+        # Variable initialization
         self.markerArray = MarkerArray()
         self.frame_st = {'map'}
         self.yaml_file = {}
         self.grasp_poses = {}
+        self.matching = []
 
     def callback(self, data):
+        # Get the list of frames published by tf
         str_data = data.transforms[0].child_frame_id
         self.frame_st.update({str_data})
 
     def callback_camera(self, data):
+        # Obtain the name of the camera frame
         self.camera_frame = data.header.frame_id
 
     def clear_v(self):
@@ -57,7 +65,12 @@ class ObjectGraspingMarker():
 
     # Read all frames published in /tf and finds markers
     def match_objects(self):
-        self.matching = [s for s in self.frame_st if "tag_" in s]
+        old = self.matching
+        match = [s for s in self.frame_st.copy() if "tag_" in s]
+        if len(match) > 0:
+            self.matching = match
+        else:
+            self.matching = old
         return self.matching
 
     # Quaternion multiplication (input as tuples)
@@ -102,6 +115,7 @@ class ObjectGraspingMarker():
                 for n in a:
                     if n == mark:
                         obj_list.append(y)
+        self.object_pub.publish(obj_list)
         return obj_list
 
     # Creates the object as a Marker() (pose is wrt /camera_optical_frame)
@@ -232,7 +246,7 @@ class ObjectGraspingMarker():
             finger1[obj] = {}
             finger2[obj] = {}
             found_obj[obj] = Marker()
-            self.grasp_poses[obj] = []
+            pose_list =[]
             (found_obj[obj], poses) = ObjectGraspingMarker.obj_pos_orient(self, obj)
 
             # Create markers for the grasping poses
@@ -241,12 +255,14 @@ class ObjectGraspingMarker():
                 finger1[obj][n] = Marker()
                 finger2[obj][n] = Marker()
                 (markers[obj][n], x, y, z, orien, finger1[obj][n], finger2[obj][n]) = ObjectGraspingMarker.poses_markers(self, obj, n)
-                self.grasp_poses[obj].append(markers[obj][n].ns)
+                pose_list.append(markers[obj][n].ns)
 
                 self.br.sendTransform((x, y, z),
                                  (orien[0], orien[1], orien[2], orien[3]),
                                  rospy.Time.now(),
                                  markers[obj][n].ns, obj)
+            if len(pose_list) > 0:
+                self.grasp_poses[obj] = pose_list
 
         return markers, found_obj, finger1, finger2
 
@@ -267,6 +283,7 @@ class ObjectGraspingMarker():
         table.mesh_resource = "package://iai_kitchen/meshes/misc/big_table_1.dae"
         table.mesh_use_embedded_materials = True
         table.action = table.ADD
+        table.lifetime = rospy.Time(2)
         table.scale.x = table.scale.y = table.scale.z = 1.0
         quaternion = tf.transformations.quaternion_from_euler(0, math.pi * 0, 0)
         table.pose.position.x = 0
@@ -283,26 +300,25 @@ class ObjectGraspingMarker():
         return table
 
 
-
 # Main function
 def main():
-    #rospy.init_node('object_loader', anonymous=True)
     cl = ObjectGraspingMarker()
-    r = rospy.Rate(50)
+    r = rospy.Rate(30)
+    rospy.sleep(0.5)
     scheduler = BackgroundScheduler()
     scheduler.add_job(cl.clear_v, 'interval', seconds=0.5)
     scheduler.start()
 
     marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
 
+    # Open database YAML file
+    cl.op_file()
+
     while not rospy.is_shutdown():
         markerArray = MarkerArray()
 
         # Find frames that are object markers
         matching = cl.match_objects()
-
-        # Open database YAML file
-        cl.op_file()
 
         # Check if the objects are registered in the data base
         obj_list = cl.find_obj(matching)
@@ -322,10 +338,8 @@ def main():
         markerArray.markers.append(table)
 
         marker_pub.publish(markerArray)
-        r.sleep()
 
     rospy.spin()
-
 
 
 if __name__ == '__main__':
