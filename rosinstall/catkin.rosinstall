@@ -34,3 +34,7 @@
     local-name: giskard_msgs
     uri: https://github.com/semroco/giskard_msgs.git
     version: master
+- git:
+    local-name: qpoases
+    uri: https://github.com/mgvargas/qpOASES.git
+    version: master
