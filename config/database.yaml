@@ -8,20 +8,17 @@ cup:
   position: [0.005, 0.0678, 0.0345]
   orientation: [ 0.06118498,  0.74043417, -0.66587137,  0.06803634]
  mesh: package://iai_markers_tracking/meshes/cup_green.dae
- scale: 1.0
- gripper_openning: 0.0055
+ scale: 1.0 # if cm = 1, m = 0.001
+ gripper_opening: 0.0055
  grasping_poses:
     - p_id: gp1
       position: [0.058,0.0,0.048]
-      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
       orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp2
       position: [0.058,0.0,0.048]
-      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
       orientation: [0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp3
       position: [-0.036,-0.0,0.06]
-      orientation_arrow: [-1.0, 0.0, 1.0, 0.00001]
       orientation: [0,1.0,0.0,0.000001]
 
 bowl:
@@ -35,61 +32,51 @@ bowl:
   orientation: [-0.19057887,  0.73316702, -0.61150239, -0.22849648]
  mesh: package://iai_markers_tracking/meshes/bowl2.dae
  scale: 1.0 # if cm = 1, m = 0.001
- gripper_openning: 0.007
+ gripper_opening: 0.007
  grasping_poses:
     - p_id: gp1
       position: [0.14,0,0.1]
-      orientation_arrow: [0,0,1,0.00001]
       orientation: [0.000001,-0.70710678,0,0.70710678]
     - p_id: gp2
       position: [-0.14,0,0.1]
-      orientation_arrow: [0,0,0,1]
       orientation: [0.00001,0.70710678,0,0.70710678]
     - p_id: gp3
       position: [-0.14,-0.04,0.1]
-      orientation_arrow: [0.0,0.0,0.4999,0.8661]
       orientation: [-0.35347752, 0.61241624,  0.35347752,  0.61241624]
     - p_id: gp4
       position: [-0.14,0.03,0.1]
-      orientation_arrow: [0.0,0.0,-0.4999,0.8661]
       orientation: [0.35347752, 0.61241624, -0.35347752,  0.61241624]
     - p_id: gp5
       position: [0.14,0.04,0.1]
-      orientation_arrow: [0.0,0.0,-0.8659,0.5002]
       orientation: [0.61228901,  0.35369784, -0.61228901,  0.35369784]
     - p_id: gp6
       position: [0.14,-0.03,0.1]
-      orientation_arrow: [0.0,0.0,0.8659,0.5002]
       orientation: [-0.61228901,  0.35369784, 0.61228901,  0.35369784]
 
 mondamin:
  id: 03
  marker: [tag_5, tag_6]
- tag_5: #3
+ tag_5:
   position: [0.01,0.07,0.02]
   orientation: [ 0.5,  0.5, -0.5,  0.5]
- tag_6: # 6
+ tag_6:
   position: [0.015,0.08,0.01]
   orientation: [-0.5, 0.5, -0.5, -0.5]
  mesh: package://iai_markers_tracking/meshes/mondamin.dae
  scale: .001 # if cm = 1, m = 0.001
- gripper_openning: 0.05
+ gripper_opening: 0.05
  grasping_poses:
     - p_id: gp1
       position: [0,-0.02,0.15]
-      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
       orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp2
       position: [0,-0.02,0.07]
-      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
       orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp3
       position: [0,0.02,0.07]
-      orientation_arrow: [0.0, 0.0,-0.70710678, 0.70710678]
       orientation: [ 0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp4
       position: [0,0.02,0.15]
-      orientation_arrow: [0.0, 0.0, -0.70710678, 0.70710678]
       orientation: [ 0.70710678, 0.0, 0.0, 0.70710678]
 
 knorr_tomate:
@@ -99,14 +86,12 @@ knorr_tomate:
   position: [-0.006,0.035,0.0232]
   orientation: [-0.00653739,  0.70744666, -0.70670621, -0.00654424]
  mesh: package://iai_markers_tracking/meshes/knorr_tomate.dae
- scale: 1.0
- gripper_openning: 0.05
+ scale: 1.0 # if cm = 1, m = 0.001
+ gripper_opening: 0.05
  grasping_poses:
     - p_id: gp1
       position: [0.03,0.0,0.05]
-      orientation_arrow: [0.0, 0.0, 0.70710678, 0.70710678]
       orientation: [0.5, -0.5, -0.5,  0.5]
     - p_id: gp2
       position: [-0.03,0.0,0.05]
-      orientation_arrow: [-1.0, 0.0, 1.0, 0.00001]
       orientation:  [ 0.5,  0.5, 0.5,  0.5]

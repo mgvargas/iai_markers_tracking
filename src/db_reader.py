@@ -190,61 +190,44 @@ class ObjectGraspingMarker:
                 mar.header.stamp = rospy.Time.now()
                 mar.ns = obj + '_' + self.yaml_file[k]['grasping_poses'][n]['p_id']
                 mar.id = self.yaml_file[k]['id'] * 100 + n
-                # mar.type = mar.ARROW
                 mar.type = mar.MESH_RESOURCE
                 mar.action = mar.ADD
                 mar.color.a = 0.5
                 mar.lifetime = rospy.Time(1)
+                mar.color.g = 0.5
+                mar.color.r = mar.color.b = 0.7
+                mar.scale.x = mar.scale.y = mar.scale.z = 0.01
                 # Marker pose
                 pos = self.yaml_file[k]['grasping_poses'][n]['position']
                 orien = self.yaml_file[k]['grasping_poses'][n]['orientation']
-                if mar.type == mar.ARROW:
-                    orien_a = self.yaml_file[k]['grasping_poses'][n]['orientation_arrow']
-                    euler = tf.transformations.euler_from_quaternion(orien_a)
-                    mar.color.g = 0.3
-                    mar.color.r = mar.color.b = 0.9
-                    mar.scale.x = 0.1
-                    mar.scale.y = mar.scale.z = 0.02
-                    z = math.copysign(math.cos(euler[1]) * (mar.scale.x + 0.02), pos[2])
-                    mar.pose.position.x = math.copysign(math.cos(euler[2]) * z, pos[0]) + pos[0]
-                    mar.pose.position.y = math.copysign(math.sin(euler[2]) * z, pos[1]) + pos[1]
-                    mar.pose.position.z = math.copysign(math.sin(euler[1]) * mar.scale.x, pos[2]) + pos[2]
-                    mar.pose.orientation.x = orien_a[0]
-                    mar.pose.orientation.y = orien_a[1]
-                    mar.pose.orientation.z = orien_a[2]
-                    mar.pose.orientation.w = orien_a[3]
-                else:
-                    mar.color.g = 0.5
-                    mar.color.r = mar.color.b = 0.7
-                    mar.scale.x = mar.scale.y = mar.scale.z = 0.01
-                    mar.pose.position.x = pos[0]
-                    mar.pose.position.y = pos[1]
-                    mar.pose.position.z = pos[2]
-                    mar.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_base.stl'
-                    mar.mesh_use_embedded_materials = True
-                    mar.pose.orientation.x = orien[0]
-                    mar.pose.orientation.y = orien[1]
-                    mar.pose.orientation.z = orien[2]
-                    mar.pose.orientation.w = orien[3]
-                    finger1 = copy.deepcopy(mar)
-                    finger1.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_finger.stl'
-                    finger1.ns = mar.ns + '_f1'
-                    finger1.id = self.yaml_file[k]['id'] * 1000 + n
-                    finger1.header.frame_id = obj + '_' + self.yaml_file[k]['grasping_poses'][n]['p_id']
-                    finger1.pose.position.x = -(self.yaml_file[k]['gripper_opening']) / 2
-                    finger1.pose.position.y = 0
-                    finger1.pose.position.z = 0
-                    finger1.pose.orientation.x = 0
-                    finger1.pose.orientation.y = 0
-                    finger1.pose.orientation.z = 0
-                    finger1.pose.orientation.w = 1
-                    finger2 = copy.deepcopy(finger1)
-                    finger2.pose.position.x = (self.yaml_file[k]['gripper_opening']) / 2
-                    finger2.pose.position.y = 0.005
-                    finger2.pose.orientation.z = 1
-                    finger2.pose.orientation.w = 0.00001
-                    finger2.ns = mar.ns + '_f2'
-                    finger1.id = self.yaml_file[k]['id'] * 2000 + n
+                mar.pose.position.x = pos[0]
+                mar.pose.position.y = pos[1]
+                mar.pose.position.z = pos[2]
+                mar.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_base.stl'
+                mar.mesh_use_embedded_materials = True
+                mar.pose.orientation.x = orien[0]
+                mar.pose.orientation.y = orien[1]
+                mar.pose.orientation.z = orien[2]
+                mar.pose.orientation.w = orien[3]
+                finger1 = copy.deepcopy(mar)
+                finger1.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_finger.stl'
+                finger1.ns = mar.ns + '_f1'
+                finger1.id = self.yaml_file[k]['id'] * 1000 + n
+                finger1.header.frame_id = obj + '_' + self.yaml_file[k]['grasping_poses'][n]['p_id']
+                finger1.pose.position.x = -(self.yaml_file[k]['gripper_opening']) / 2
+                finger1.pose.position.y = 0
+                finger1.pose.position.z = 0
+                finger1.pose.orientation.x = 0
+                finger1.pose.orientation.y = 0
+                finger1.pose.orientation.z = 0
+                finger1.pose.orientation.w = 1
+                finger2 = copy.deepcopy(finger1)
+                finger2.pose.position.x = (self.yaml_file[k]['gripper_opening']) / 2
+                finger2.pose.position.y = 0.005
+                finger2.pose.orientation.z = 1
+                finger2.pose.orientation.w = 0
+                finger2.ns = mar.ns + '_f2'
+                finger1.id = self.yaml_file[k]['id'] * 2000 + n
                 return mar, pos[0], pos[1], pos[2], orien, finger1, finger2
 
     # Published the /tf for all objects and the markers (of the grasping poses)
