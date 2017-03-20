@@ -38,3 +38,7 @@
     local-name: qpoases
     uri: https://github.com/mgvargas/qpOASES.git
     version: master
+- git:
+    local-name: urdfdom
+    uri: https://github.com/ros/urdfdom.git
+    version: master
