@@ -42,3 +42,7 @@
     local-name: urdfdom
     uri: https://github.com/ros/urdfdom.git
     version: master
+- git:
+    local-name: kdl
+    uri: https://github.com/orocos/orocos_kinematics_dynamics.git
+    version: master
