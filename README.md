@@ -28,6 +28,10 @@ Install ```ArUco ROS``` and ```video_stream_opencv``` (if required):
 	https://github.com/pal-robotics/aruco_ros				# Marker detection
 	https://github.com/ros-drivers/video_stream_opencv # Video streaming from webcam
 ```
+Install ```KDL```, use ```caktin_make isolated```:
+```
+	git clone https://github.com/orocos/orocos_kinematics_dynamics.git
+```
 
 # Running the code
 Run ```ArUco ROS``` and ```video_stream_opencv```:
