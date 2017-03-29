@@ -8,7 +8,7 @@
     version: boxy_odom_joints
 - git:
     local-name: iai_boxy_sim
-    uri: https://github.com/airballking/iai_boxy_sim.git
+    uri: https://github.com/code-iai/iai_boxy_sim.git
     version: master
 - git:
     local-name: ros_markers
@@ -41,4 +41,8 @@
 - git:
     local-name: urdfdom
     uri: https://github.com/ros/urdfdom.git
+    version: master
+- git:
+    local-name: iai_naive_kinematics_sim
+    uri: https://github.com/code-iai/iai_naive_kinematics_sim.git
     version: master
