@@ -29,7 +29,7 @@ from sensor_msgs.msg import CameraInfo
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from iai_markers_tracking.msg import Object
-from iai_markers_tracking.srv import ObjGrasping
+from iai_markers_tracking.srv import GetObjectInfo
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
@@ -38,7 +38,7 @@ class ObjectGraspingMarker:
 
     def __init__(self):
         rospy.init_node('object_loader', anonymous=True)
-        self.s = rospy.Service('object_grasping_poses', ObjGrasping, self.list_grasping_poses)
+        self.s = rospy.Service('get_object_info', GetObjectInfo, self.list_grasping_poses)
         self.tfBuffer = tf2_ros.Buffer()
         tf2_ros.TransformListener(self.tfBuffer)
         self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback)

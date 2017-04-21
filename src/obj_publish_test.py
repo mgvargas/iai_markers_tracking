@@ -39,9 +39,9 @@ def main():
         camera_pub.publish(camera)
 
         quaternion0 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(-5), 0)
-        quaternion1 = tf.transformations.quaternion_from_euler(math.radians(0), 0, 0)
+        quaternion1 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(0), math.radians(0))
         quaternion2 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(-5), 0)
-        quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-12), math.radians(5), 0)
+        quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-14), math.radians(-15), 0)
         quaternion4 = tf.transformations.quaternion_from_euler(-math.pi/2, 0, 0)
 
         now = rospy.Time.now()
@@ -105,12 +105,25 @@ def main():
         camera.transform.rotation.y = quaternion4[1]
         camera.transform.rotation.z = quaternion4[2]
         camera.transform.rotation.w = quaternion4[3]
+
+        odom = TransformStamped()
+        odom.header.stamp = now
+        odom.header.frame_id = 'map'
+        odom.child_frame_id = 'odom'
+        odom.transform.translation.x = -0.8
+        odom.transform.translation.y = -0.5
+        odom.transform.translation.z = 0
+        odom.transform.rotation.x = 0
+        odom.transform.rotation.y = 0
+        odom.transform.rotation.z = 0
+        odom.transform.rotation.w = 1
         
         br.sendTransform(knorr)
         br.sendTransform(cup)
         br.sendTransform(bowl)
         br.sendTransform(mondamin)
         br.sendTransform(camera)
+        br.sendTransform(odom)
 
         r.sleep()
 

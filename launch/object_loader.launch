@@ -7,11 +7,11 @@
 
     <arg name="camera_frame_id" default="camera_optical_frame" />
 
-    <!-- Run Rviz and load the default config to see the active objects -->
+    <!-- Run Rviz and load the default config to see the active objects >
     <include file="$(find iai_markers_tracking)/launch/markers_rviz.launch">
       <arg name="config" value="true"/>
       <arg name="debug" value="$(arg debug)"/>
-    </include>
+    </include-->
 
     <!-- Testing (publishes markers in tf/ -->
     <group if="$(arg sim)">
@@ -31,7 +31,7 @@
         </include>
     </group>
 
-    <!-- Boxy simulation -->
-    <include file="$(find iai_boxy_sim)/launch/boxy.launch"/>
+    <!-- Boxy simulation >
+    <include file="$(find iai_boxy_sim)/launch/boxy.launch"/-->
 
 </launch>
