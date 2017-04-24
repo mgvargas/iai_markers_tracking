@@ -34,7 +34,8 @@ Install ```KDL```, use ```caktin_make isolated```:
 ```
 
 # Running the code
-Run ```ArUco ROS``` and ```video_stream_opencv```:
+If you want to detect objects using a camera
+1) Run ```ArUco ROS``` and ```video_stream_opencv```:
 ```
    roslaunch aruco_ros double.launch
 	roslaunch video_stream_opencv camera.launch  # If no perceptionsystem is running
@@ -43,10 +44,16 @@ Run ```ArUco ROS``` and ```video_stream_opencv```:
 ```
  	rosrun image_view image_view image:=/aruco_simple/result
 ```
-Run ```db_reader.py``` from the ```iai_markers_tracking``` package
+2) Run ```object_db_reader.py``` from the ```iai_markers_tracking``` package
 ```
-	roslaunch iai_markers_tracking db_reader.py
+	rosrun iai_markers_tracking object_db_reader.py
+```
+3) Run RVIZ and add a MarkerArray and Axes, change the reference frame to the camera reference frame.
+4) Place the objects with markers inside the view range of the camera.
+
+If you want to simulate object detection, just launch:
+```
+	roslaunch iai_markers_tracking object_detector.launch
 ```
 Run RVIZ and add a MarkerArray and Axes, change the reference frame to the camera reference frame.
-Place the objects with markers in front of the camera.
 
