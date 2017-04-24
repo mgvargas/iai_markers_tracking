@@ -46,3 +46,7 @@
     local-name: iai_naive_kinematics_sim
     uri: https://github.com/code-iai/iai_naive_kinematics_sim.git
     version: master
+- git:
+    local-name: knowrob_moveit
+    uri: https://github.com/mgvargas/knowrob_moveit.git
+    version: master
