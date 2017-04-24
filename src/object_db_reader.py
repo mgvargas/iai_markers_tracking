@@ -37,7 +37,7 @@ class ObjectGraspingMarker:
     grasp_poses = {}
 
     def __init__(self):
-        rospy.init_node('object_loader', anonymous=True)
+        rospy.init_node('object_db', anonymous=True)
         self.s = rospy.Service('get_object_info', GetObjectInfo, self.list_grasping_poses)
         self.tfBuffer = tf2_ros.Buffer()
         tf2_ros.TransformListener(self.tfBuffer)

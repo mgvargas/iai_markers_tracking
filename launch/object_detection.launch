@@ -19,7 +19,7 @@
     </group>
 
     <!-- Object detection and database -->
-    <node name="obj_database" pkg="iai_markers_tracking" type="db_reader.py" respawn="false" output="screen"/>
+    <node name="obj_database" pkg="iai_markers_tracking" type="object_db_reader.py" respawn="false" output="screen"/>
     <group unless="$(arg sim)">
         <include file="$(find video_stream_opencv)/launch/camera.launch">
           <arg name="frame_id" value="$(arg camera_frame_id)"/>
