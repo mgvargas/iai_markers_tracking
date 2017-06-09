@@ -1,0 +1,12 @@
+# Action that request a trajectory for reaching a given grasping pose
+
+# Goal
+geometry_msgs/PoseStamped grasping_pose
+string arm      # Do I need to specify the arm here??
+---
+# Result
+bool pose_achieved
+---
+# Feedback
+string sim_status
+geometry_msgs/PoseStamped current_pose

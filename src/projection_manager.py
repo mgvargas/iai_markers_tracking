@@ -24,8 +24,10 @@ import sys
 import yaml
 import numpy as np
 import PyKDL as kdl
+import actionlib
 from urdf_parser_py import urdf
 from iai_markers_tracking.msg import Object
+from iai_markers_tracking.msg import MoveToGPAction, MoveToGPGoal
 from iai_markers_tracking.srv import GetObjectInfo
 from sensor_msgs.msg import JointState
 from urdf_parser_py.urdf import URDF
@@ -39,6 +41,7 @@ class SelectGoal:
         self.objects = rospy.Subscriber('/found_objects', Object, self.callback_obj)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
+        self.gp_action = actionlib.SimpleActionClient('move_to_gp', MoveToGPAction)
 
         self.grasping_poses = []
         self.object_list = []
@@ -373,6 +376,7 @@ class SelectGoal:
         # print '\n EEF_l: {} \n {} \n'.format(l.p, l.M)
         # print '\n EEF_r: {} \n {} \n'.format(r.p, r.M)
 
+    # TODO: Finish this function
     def dist_to_joint_limits(self, chain):
         # Obtains the distance to joint limits
         limit_warning = False
@@ -392,6 +396,14 @@ class SelectGoal:
                     limit_warning = True
                     print 'right_arm_joint_{} is close to or outside joint limits'.format(n)
             min_dist_to_limit_right = min(d for d in limit_diff_right)
+
+    # TODO: Finish this action, test it
+    def call_gp_action(self):
+        self.gp_action.wait_for_server()
+
+        goal = MoveToGPGoal()
+        self.gp_action(goal)
+        self.gp_action.wait_for_result(rospy.Duration.from_sec(1.0))
 
 
 def main():
