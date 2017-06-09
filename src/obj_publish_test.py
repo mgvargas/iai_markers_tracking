@@ -120,8 +120,8 @@ def main():
         
         br.sendTransform(knorr)
         br.sendTransform(cup)
-        br.sendTransform(bowl)
-        br.sendTransform(mondamin)
+        #br.sendTransform(bowl)
+        #br.sendTransform(mondamin)
         br.sendTransform(camera)
         br.sendTransform(odom)
 

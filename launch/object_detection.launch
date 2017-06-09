@@ -13,10 +13,10 @@
       <arg name="debug" value="$(arg debug)"/>
     </include-->
 
-    <!-- Testing (publishes markers in tf/ -->
+    <!-- Testing (publishes markers in tf) >
     <group if="$(arg sim)">
         <node name="object_poses" pkg="iai_markers_tracking" type="obj_publish_test.py" respawn="false" output="screen"/>
-    </group>
+    </group-->
 
     <!-- Object detection and database -->
     <node name="obj_database" pkg="iai_markers_tracking" type="object_db_reader.py" respawn="false" output="screen"/>

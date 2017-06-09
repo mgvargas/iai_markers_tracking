@@ -43,7 +43,7 @@ class ObjectGraspingMarker:
         tf2_ros.TransformListener(self.tfBuffer)
         self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback)
         self.camera_lis = rospy.Subscriber("/camera/camera_info", CameraInfo, self.callback_camera)
-        self.object_pub = rospy.Publisher('detected_objects', Object, queue_size=20)
+        self.object_pub = rospy.Publisher('found_objects', Object, queue_size=20)
         self.br = tf2_ros.TransformBroadcaster()
         self.s_br = tf2_ros.StaticTransformBroadcaster()
 

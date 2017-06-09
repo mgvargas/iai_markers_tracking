@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>iai_markers_tracking</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>The iai_markers_tracking package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 

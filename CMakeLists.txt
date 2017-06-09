@@ -194,5 +194,5 @@ target_link_libraries(basic_shapes ${catkin_LIBRARIES})
 
 add_executable(points_and_lines src/points_and_lines.cpp)
 target_link_libraries(points_and_lines ${catkin_LIBRARIES})
-add_executable(object_w_markers src/object_w_markers.cpp)
-target_link_libraries(object_w_markers ${catkin_LIBRARIES})
+#add_executable(object_w_markers src/pub_object_markers.cpp)
+#target_link_libraries(pub_object_markers ${catkin_LIBRARIES})
