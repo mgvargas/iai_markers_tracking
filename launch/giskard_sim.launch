@@ -1,0 +1,12 @@
+ <launch>
+     <arg name="sim" default="true" />
+
+     <group if="$(arg sim)" >
+         <include file="$(find iai_boxy_sim)/launch/boxy.launch" />
+     </group>
+
+     <include file="$(find giskard_boxy)/launch/whole_body_controller.launch" >
+         <arg name="sim" value="$(arg sim)" />
+     </include>
+
+ </launch>

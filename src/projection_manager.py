@@ -37,7 +37,7 @@ from kdl_parser import kdl_tree_from_urdf_model
 class SelectGoal:
     def __init__(self):
         rospy.init_node('goal_selector', anonymous=True)
-        r = rospy.Rate(2)
+        rate = rospy.Rate(2)
         self.objects = rospy.Subscriber('/found_objects', Object, self.callback_obj)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
@@ -79,21 +79,20 @@ class SelectGoal:
 
     def callback_obj(self, objects):
         # Gets a list of the objects found by the robot (published in '/detected_objects')
-        obj = objects.data
-        if len(obj) > 0:
-            self.object_list = obj
+        if len(objects.data) > 0:
+            self.object_list = objects.data
+        else:
+            rospy.logerr('No objects detected by perception')
+            return -1
 
     def joint_callback(self, data):
         # Setting the current joint angles
         self.all_joint_names = data.name
         self.joint_values = data.position
-        self.get_joints()
-
-    def get_joints(self, joint_name='left_arm'):
         # Getting current joint values of the arms
         a = b = 0
         for i, x in enumerate(self.all_joint_names):
-            if joint_name in x:
+            if 'left_arm' in x:
                 if a < self.nJoints:
                     self.left_jnt_pos[a] = self.joint_values[i]
                     a += 1
@@ -104,25 +103,40 @@ class SelectGoal:
                     self.right_jnt_pos[b] = self.joint_values[i]
                     b += 1
 
+    def arms_chain(self):
+        self.get_urdf()
+        self.right_chain = self.kinem_chain(self.grip_right)
+        self.right_joint_limits = [self.joint_limits_lower, self.joint_limits_upper]
+        self.left_chain = self.kinem_chain(self.grip_left)
+        self.left_joint_limits = [self.joint_limits_lower, self.joint_limits_upper]
+
     def get_urdf(self):
+        # Gets Boxy's URDF
         rospack = rospkg.RosPack()
         dir = rospack.get_path('iai_markers_tracking') + '/urdf/boxy_description.urdf'
         try:
             # self.urdf_model = urdf.Robot.from_xml_file(dir)
             self.urdf_model = URDF.from_parameter_server()
         except (OSError, LookupError) as error:
-            rospy.logerr('URDF not found in parameter server')
-            print 'ERROR: ', error
+            rospy.logerr('URDF not found in parameter server. ERROR',error)
             sys.exit(1)
+
+    def init_gp_weights(self):
+        # Initializes the weights of all grasping poses with 0
+        if len(self.grasping_poses) > 0:
+            self.gp_weights = np.zeros(len(self.grasping_poses))
 
     # TODO: Change to a smarter selector (from a ROS Topic maybe)
     def object_selector(self):
         # From the found objects, select one to grasp
         if self.old_list != self.object_list:
+            found = False
             for obj in self.object_list:
-                if obj == 'bowl':
-                    goal_obj = obj
-                    self.grasping_poses_service(goal_obj)
+                if obj == 'cup':
+                    self.grasping_poses_service(obj)
+                    found = True
+            if not found:
+                self.grasping_poses_service(self.object_list[0])
         self.old_list = self.object_list
         return self.grasping_poses
 
@@ -134,13 +148,8 @@ class SelectGoal:
             grasping_poses_list = g_p(goal_obj)
             self.grasping_poses = grasping_poses_list.grasp_poses
         except rospy.ServiceException, e:
-            print "Service call failed: %s" % e
-            rospy.logerr("Service 'get_object_info' failed")
-
-    def init_gp_weights(self):
-        # Initializes the weights of all grasping poses with 0
-        if len(self.grasping_poses) > 0:
-            self.gp_weights = np.zeros(len(self.grasping_poses))
+            rospy.logerr("Service call failed: %s" % e)
+            rospy.logerr("Service 'get_object_info' failed in obtaining the list of grasping poses")
 
     def goal_by_distance(self):
         # Find the grasping pose that is closer to one of the grippers
@@ -159,8 +168,7 @@ class SelectGoal:
                 self.pose_found = True
 
             except (tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException, tf2_ros.LookupException) as exc:
-                print '\n No TF found \n', exc
-                rospy.logerr('No TF found between gripper and object')
+                rospy.logerr('No TF found between gripper and object. ', exc)
                 continue
             else:
                 self.dist_l[n] = math.sqrt(
@@ -174,6 +182,7 @@ class SelectGoal:
             self.min_dist_l = min(d for d in self.dist_l)
             self.min_dist_r = min(d for d in self.dist_r)
 
+            # For testing, print distance to al GP
             '''print '\n Left:'
             for n in range(len(self.dist_l)):
                 print '%s: %g' %(self.trans_l[n].child_frame_id, self.dist_l[n])
@@ -235,30 +244,21 @@ class SelectGoal:
                     self.joint_limits_upper.append(jnt.limit.upper)
             self.nJoints = self.chain.getNrOfJoints()
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            rospy.logerr("Unexpected error:", sys.exc_info()[0])
             rospy.logerr('Could not re-init the kinematic chain')
             self.name_frame_out = ''
 
         return self.chain
 
-    def arms_chain(self):
-        self.get_urdf()
-        self.right_chain = self.kinem_chain(self.grip_right)
-        self.right_joint_limits = [self.joint_limits_lower, self.joint_limits_upper]
-        self.left_chain = self.kinem_chain(self.grip_left)
-        self.left_joint_limits = [self.joint_limits_lower, self.joint_limits_upper]
-
     def get_jacobian(self, d_chain):
         # Obtain jacobian for the selected arm
         if d_chain == 'left_chain':
             jacobian = kdl.Jacobian(self.left_chain.getNrOfJoints())
-            self.get_joints(joint_name='left_arm')
             self.jac_solver_left.JntToJac(self.left_jnt_pos, jacobian)
             # print '\n Left: \n', jacobian
 
         elif d_chain == 'right_chain':
             jacobian = kdl.Jacobian(self.right_chain.getNrOfJoints())
-            self.get_joints()
             self.jac_solver_right.JntToJac(self.right_jnt_pos, jacobian)
             # print '\n Right \n', jacobian
 
@@ -275,10 +275,11 @@ class SelectGoal:
         # Obtain manipulability of initial pose of arms
         left_jac = self.get_jacobian('left_chain')
         right_jac = self.get_jacobian('right_chain')
-        manip_l = self.manipulability(left_jac)
-        manip_r = self.manipulability(right_jac)
+        manip_l = self.get_manipulability(left_jac)
+        manip_r = self.get_manipulability(right_jac)
 
         if not self.pose_found:
+            rospy.logerr('No TF for given grasping_pose')
             return -1
 
         if self.left_arm is True and manip_l > self.manip_threshold:
@@ -310,15 +311,16 @@ class SelectGoal:
                 self.left_arm = False
                 self.right_arm = True
 
-        print '\nweights: ', self.gp_weights
+        # print '\nweights: ', self.gp_weights
         self.kinem_chain(self.frame_end)
 
-        print '\nThe selected arm is {}, going to {}\n'.format(self.desired_chain, self.closest_pose.child_frame_id)
+        rospy.loginfo('The selected arm is {}, going to {}\n'.format(self.desired_chain,
+                                                                       self.closest_pose.child_frame_id))
         # print '\n manip left: {} right: {} \n'.format(manip_l, manip_r)
         return self.desired_chain
 
     @staticmethod
-    def manipulability(jacobian):
+    def get_manipulability(jacobian):
         col = jacobian.columns()
         row = jacobian.rows()
         manipulability = 1
@@ -342,6 +344,7 @@ class SelectGoal:
         return manip
 
     def yaml_writer(self):
+        # Write a YAML file with the parameters for the simulated controller
         try:
             # Get info
             sim_joint_names = self.urdf_model.get_chain(self.frame_base, self.frame_end, links=False, fixed=False)
@@ -352,27 +355,27 @@ class SelectGoal:
                 else:
                     joint_w_values.update({val: self.right_jnt_pos[n]})
             data = {'simulated_joints': sim_joint_names, 'controlled_joints': self.joint_names,
-                    'start_config': joint_w_values, 'projection_mode': 'false',
-                    'sim_frequency': 100, 'watchdog_period': 0.1}
+                    'initial_config': joint_w_values, 'projection_mode': 'false',
+                    'sim_frequency': 100, 'watchdog_period': 0.1, 'goal_pose_name': self.closest_pose.child_frame_id}
 
             # Write file
             pack = rospkg.RosPack()
-            dir = pack.get_path('qpoases') + '/config/controller_param.yaml'
+            dir = pack.get_path('iai_markers_tracking') + '/config/controller_param.yaml'
             with open(dir, 'w') as outfile:
                 yaml.dump(data, outfile, default_flow_style=False)
         except:  # yaml.YAMLError:
-            rospy.logerr("Unexpected error while writing YAML file:"), sys.exc_info()[0]
+            rospy.logerr("Unexpected error while writing controller configuration YAML file:"), sys.exc_info()[0]
             return -1
 
     # Possibly remove it later
     def eef_pos(self):
+        # Get pose of both EEF
         l = kdl.Frame()
         r = kdl.Frame()
-        self.fk_solver = kdl.ChainFkSolverPos_recursive(self.right_chain)
-        self.get_joints(joint_name='left_arm')
-        self.fk_solver.JntToCart(self.right_jnt_pos, r)
-        self.fk_solver_l = kdl.ChainFkSolverPos_recursive(self.left_chain)
-        self.fk_solver_l.JntToCart(self.left_jnt_pos, l)
+        fk_solver = kdl.ChainFkSolverPos_recursive(self.right_chain)
+        fk_solver.JntToCart(self.right_jnt_pos, r)
+        fk_solver_l = kdl.ChainFkSolverPos_recursive(self.left_chain)
+        fk_solver_l.JntToCart(self.left_jnt_pos, l)
         # print '\n EEF_l: {} \n {} \n'.format(l.p, l.M)
         # print '\n EEF_r: {} \n {} \n'.format(r.p, r.M)
 
@@ -383,27 +386,32 @@ class SelectGoal:
         if chain == 'left_chain':
             limit_diff_left = [0] * len(self.left_joint_limits[1])
             for n, val in enumerate(self.left_joint_limits[1]):
-                limit_diff_left[n] = self.left_joint_limits[1][n] - abs(self.left_jnt_pos[n])
-                if limit_diff_left[n] < 0.1:
+                limit_diff_left[n] = abs(self.left_joint_limits[1][n]) - abs(self.left_jnt_pos[n])
+                if limit_diff_left[n] < 0.001:
                     limit_warning = True
-                    print 'left_arm_joint_{} is close to or outside joint limits'.format(n)
+                    rospy.logwarn('left_arm_joint_{} is close to or outside joint limits'.format(n))
             min_dist_to_limit_left = min(d for d in limit_diff_left)
         else:
             limit_diff_right = [0] * len(self.right_joint_limits[1])
             for n, val in enumerate(self.right_joint_limits[1]):
-                limit_diff_right[n] = self.right_joint_limits[1][n] - abs(self.right_jnt_pos[n])
-                if limit_diff_right[n] < 0.1:
+                limit_diff_right[n] = abs(self.right_joint_limits[1][n]) - abs(self.right_jnt_pos[n])
+                if limit_diff_right[n] < 0.001:
                     limit_warning = True
-                    print 'right_arm_joint_{} is close to or outside joint limits'.format(n)
+                    rospy.logwarn('right_arm_joint_{} is close to or outside joint limits'.format(n))
             min_dist_to_limit_right = min(d for d in limit_diff_right)
 
     # TODO: Finish this action, test it
     def call_gp_action(self):
         self.gp_action.wait_for_server()
 
-        goal = MoveToGPGoal()
-        self.gp_action(goal)
-        self.gp_action.wait_for_result(rospy.Duration.from_sec(1.0))
+        if self.left_arm:
+            goal = MoveToGPGoal(grasping_pose=self.closest_pose, arm='left')
+        elif self.right_arm:
+            goal = MoveToGPGoal(grasping_pose=self.closest_pose, arm='right')
+
+        self.gp_action.send_goal(goal)
+        self.gp_action.wait_for_result(rospy.Duration.from_sec(0.5))
+        print 'Action Result: ', self.gp_action.get_result()
 
 
 def main():
@@ -422,6 +430,8 @@ def main():
 
         # Distance to joint limits
         c_goal.dist_to_joint_limits(arm)
+
+        c_goal.call_gp_action()
 
     rospy.spin()
 

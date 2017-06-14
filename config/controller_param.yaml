@@ -1,0 +1,29 @@
+controlled_joints:
+- right_arm_0_joint
+- right_arm_1_joint
+- right_arm_2_joint
+- right_arm_3_joint
+- right_arm_4_joint
+- right_arm_5_joint
+- right_arm_6_joint
+goal_pose_name: cup_gp3
+initial_config:
+  right_arm_0_joint: 1.035431542036267
+  right_arm_1_joint: -0.6214144842664262
+  right_arm_2_joint: -2.5601793369348207
+  right_arm_3_joint: -1.4676542755818898
+  right_arm_4_joint: -1.2967314329570683
+  right_arm_5_joint: 1.85759378992942
+  right_arm_6_joint: -1.0270237084541678
+projection_mode: 'false'
+sim_frequency: 100
+simulated_joints:
+- triangle_base_joint
+- right_arm_0_joint
+- right_arm_1_joint
+- right_arm_2_joint
+- right_arm_3_joint
+- right_arm_4_joint
+- right_arm_5_joint
+- right_arm_6_joint
+watchdog_period: 0.1
