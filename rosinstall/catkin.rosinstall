@@ -3,50 +3,72 @@
     uri: https://github.com/mgvargas/iai_markers_tracking.git
     version: master
 - git:
-    local-name: iai_robots
-    uri: https://github.com/airballking/iai_robots.git
-    version: boxy_odom_joints
-- git:
-    local-name: iai_boxy_sim
-    uri: https://github.com/code-iai/iai_boxy_sim.git
+    local-name: expressiongraph
+    uri: https://github.com/SemRoCo/expressiongraph.git
     version: master
-- git:
-    local-name: ros_markers
-    uri: https://github.com/chili-epfl/ros_markers
-    version: master
-- git:
-    local-name: opencv
-    uri: https://github.com/opencv/opencv
-    version: master    
-- git:
-    local-name: video_stream_opencv
-    uri: https://github.com/mgvargas/video_stream_opencv
-    version: master  
-- git:
-    local-name: ros_control_boilerplate
-    uri: https://github.com/airballking/ros_control_boilerplate.git
-    version: fix-joint-limits-velocity-mode
-- git:
-    local-name: ros_control
-    uri: https://github.com/airballking/ros_control.git
-    version: fix-velocity-joint-saturate-interface
+# Giskard
 - git:
     local-name: giskard_msgs
     uri: https://github.com/semroco/giskard_msgs.git
     version: master
 - git:
-    local-name: qpoases
-    uri: https://github.com/mgvargas/qpOASES.git
+    local-name: giskard_core
+    uri: https://github.com/SemRoCo/giskard_core.git
     version: master
 - git:
-    local-name: urdfdom
-    uri: https://github.com/ros/urdfdom.git
+    local-name: giskard_boxy
+    uri: https://github.com/SemRoCo/giskard_boxy.git
+    version: master
+- git:
+    local-name: giskard_ros
+    uri: https://github.com/SemRoCo/giskard_ros.git
+    version: master
+#Boxy
+- git:
+    local-name: iai_boxy_sim
+    uri: https://github.com/code-iai/iai_boxy_sim.git
     version: master
 - git:
     local-name: iai_naive_kinematics_sim
     uri: https://github.com/code-iai/iai_naive_kinematics_sim.git
     version: master
 - git:
+    local-name: iai_robots
+    uri: https://github.com/airballking/iai_robots.git
+    version: boxy_odom_joints
+- git:
     local-name: knowrob_moveit
-    uri: https://github.com/mgvargas/knowrob_moveit.git
+    uri: https://github.com/amaldo/knowrob_moveit.git
+    version: kinetic-dev
+- git:
+    local-name: opencv
+    uri: https://github.com/opencv/opencv
     version: master
+- git:
+    local-name: qpoases
+    uri: https://github.com/mgvargas/qpOASES.git
+    version: master
+- git:
+    local-name: ros_control
+    uri: https://github.com/airballking/ros_control.git
+    version: fix-velocity-joint-saturate-interface
+- git:
+    local-name: ros_control_boilerplate
+    uri: https://github.com/airballking/ros_control_boilerplate.git
+    version: fix-joint-limits-velocity-mode
+- git:
+    local-name: ros_markers
+    uri: https://github.com/chili-epfl/ros_markers
+    version: master
+- git:
+    local-name: urdfdom
+    uri: https://github.com/ros/urdfdom.git
+    version: master
+- git:
+    local-name: video_stream_opencv
+    uri: https://github.com/mgvargas/video_stream_opencv
+    version: master
+#- git:
+#    local-name: kdl
+#    uri: https://github.com/orocos/orocos_kinematics_dynamics.git
+#    version: master
