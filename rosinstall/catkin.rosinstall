@@ -35,11 +35,11 @@
 - git:
     local-name: iai_robots
     uri: https://github.com/airballking/iai_robots.git
-    version: boxy_odom_joints
+    version: master
 - git:
     local-name: knowrob_moveit
-    uri: https://github.com/amaldo/knowrob_moveit.git
-    version: kinetic-dev
+    uri: https://github.com/SemRoCo/knowrob_moveit.git
+    version: master
 - git:
     local-name: opencv
     uri: https://github.com/opencv/opencv
