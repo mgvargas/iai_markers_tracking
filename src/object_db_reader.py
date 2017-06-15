@@ -287,7 +287,7 @@ class ObjectGraspingMarker:
         table.ns = "kitchen_table"
         table.id = 0
         table.type = table.MESH_RESOURCE
-        table.mesh_resource = "package://iai_kitchen/meshes/misc/big_table_1.dae"
+        table.mesh_resource = "package://iai_markers_tracking/meshes/big_table_1.dae"
         table.mesh_use_embedded_materials = True
         table.action = table.ADD
         table.lifetime = rospy.Time(2)
@@ -302,7 +302,7 @@ class ObjectGraspingMarker:
         table.pose.orientation.w = quaternion[3]
         table.scale.x = table.scale.y = table.scale.z = 1.0
         table.color.r = table.color.g = 0.2
-        table.color.b = 0.6
+        table.color.b = 0.5
         table.color.a = 1.0
         return table
 
