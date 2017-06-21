@@ -4,7 +4,7 @@
     <!-- By default, we are not in debug mode -->
     <arg name="debug" default="false" />
     <arg name="sim" default="true" />
-    <arg name="rviz" default="true" />
+    <arg name="rviz" default="false" />
 
     <arg name="camera_frame_id" default="camera_optical_frame" />
 

@@ -96,6 +96,8 @@ class SelectGoal:
                 if a < self.nJoints:
                     self.left_jnt_pos[a] = self.joint_values[i]
                     a += 1
+            elif x == 'triangle_base_joint':
+                self.triang_base_joint = {'triangle_base_joint': self.joint_values[i]}
 
         for i, x in enumerate(self.all_joint_names):
             if 'right_arm' in x:
@@ -133,6 +135,7 @@ class SelectGoal:
             found = False
             for obj in self.object_list:
                 if obj == 'cup':
+                #if obj == 'knorr_tomate':
                     self.grasping_poses_service(obj)
                     found = True
             if not found:
@@ -271,12 +274,14 @@ class SelectGoal:
     def arm_selector(self):
         # Find closest grasping pose of a given object
         self.object_selector()
-        self.closest_pose = self.goal_by_distance()
+        closest_pose = self.goal_by_distance()
+
         # Obtain manipulability of initial pose of arms
         left_jac = self.get_jacobian('left_chain')
         right_jac = self.get_jacobian('right_chain')
         manip_l = self.get_manipulability(left_jac)
         manip_r = self.get_manipulability(right_jac)
+        # print '\n manip left: {} right: {} \n'.format(manip_l, manip_r)
 
         if not self.pose_found:
             rospy.logerr('No TF for given grasping_pose')
@@ -295,7 +300,7 @@ class SelectGoal:
             if manip_l > manip_r and dist_rate <= self.distance_threshold:
                 elem = [i for i, d in enumerate(self.dist_l) if d == self.min_dist_l]
                 self.elem = elem[0]
-                self.closest_pose = self.trans_l[self.elem]
+                closest_pose = self.trans_l[self.elem]
                 self.gp_weights[self.elem] += 0.5
                 self.frame_end = self.grip_left
                 self.desired_chain = 'left_chain'
@@ -304,7 +309,7 @@ class SelectGoal:
             else:
                 elem = [i for i, d in enumerate(self.dist_r) if d == self.min_dist_r]
                 self.elem = elem[0]
-                self.closest_pose = self.trans_r[self.elem]
+                closest_pose = self.trans_r[self.elem]
                 self.gp_weights[self.elem] += 0.5
                 self.frame_end = self.grip_right
                 self.desired_chain = 'right_chain'
@@ -312,11 +317,13 @@ class SelectGoal:
                 self.right_arm = True
 
         # print '\nweights: ', self.gp_weights
+        self.goal_pose = self.goal_pose_tf(closest_pose.child_frame_id)
+
         self.kinem_chain(self.frame_end)
 
         rospy.loginfo('The selected arm is {}, going to {}\n'.format(self.desired_chain,
-                                                                       self.closest_pose.child_frame_id))
-        # print '\n manip left: {} right: {} \n'.format(manip_l, manip_r)
+                                                                     self.goal_pose.child_frame_id))
+
         return self.desired_chain
 
     @staticmethod
@@ -348,15 +355,20 @@ class SelectGoal:
         try:
             # Get info
             sim_joint_names = self.urdf_model.get_chain(self.frame_base, self.frame_end, links=False, fixed=False)
+            sim_links_names = self.urdf_model.get_chain(self.frame_base, self.frame_end, joints=False, fixed=False)
             joint_w_values = {}
+            joint_w_values.update(self.triang_base_joint)
             for n, val in enumerate(self.joint_names):
                 if self.left_arm is True:
+                    arm = 'left'
                     joint_w_values.update({val: self.left_jnt_pos[n]})
                 else:
+                    arm = 'right'
                     joint_w_values.update({val: self.right_jnt_pos[n]})
-            data = {'simulated_joints': sim_joint_names, 'controlled_joints': self.joint_names,
-                    'initial_config': joint_w_values, 'projection_mode': 'false',
-                    'sim_frequency': 100, 'watchdog_period': 0.1, 'goal_pose_name': self.closest_pose.child_frame_id}
+            data = {'simulated_joints': sim_joint_names, 'simulated_links': sim_links_names,
+                    'controlled_joints': self.joint_names, 'initial_config': joint_w_values, 'projection_mode': 'false',
+                    'sim_frequency': 100, 'watchdog_period': 0.1, 'goal_pose_name': self.goal_pose.child_frame_id,
+                    'arm':arm}
 
             # Write file
             pack = rospkg.RosPack()
@@ -378,6 +390,16 @@ class SelectGoal:
         fk_solver_l.JntToCart(self.left_jnt_pos, l)
         # print '\n EEF_l: {} \n {} \n'.format(l.p, l.M)
         # print '\n EEF_r: {} \n {} \n'.format(r.p, r.M)
+
+    def goal_pose_tf(self,pose):
+        # Get TF between base and object's grasping pose
+        try:
+            goal_pose = self.tfBuffer.lookup_transform(self.frame_base, pose, rospy.Time(0), rospy.Duration(1, 5e8))
+
+        except (tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException, tf2_ros.LookupException) as exc:
+            rospy.logerr('No TF found between base and object. ', exc)
+            goal_pose = pose
+        return goal_pose
 
     # TODO: Finish this function
     def dist_to_joint_limits(self, chain):
@@ -405,9 +427,9 @@ class SelectGoal:
         self.gp_action.wait_for_server()
 
         if self.left_arm:
-            goal = MoveToGPGoal(grasping_pose=self.closest_pose, arm='left')
-        elif self.right_arm:
-            goal = MoveToGPGoal(grasping_pose=self.closest_pose, arm='right')
+            goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='left')
+        else:
+            goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='right')
 
         self.gp_action.send_goal(goal)
         self.gp_action.wait_for_result(rospy.Duration.from_sec(0.5))

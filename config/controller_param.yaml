@@ -1,3 +1,4 @@
+arm: right
 controlled_joints:
 - right_arm_0_joint
 - right_arm_1_joint
@@ -15,6 +16,7 @@ initial_config:
   right_arm_4_joint: -1.2967314329570683
   right_arm_5_joint: 1.85759378992942
   right_arm_6_joint: -1.0270237084541678
+  triangle_base_joint: -0.31
 projection_mode: 'false'
 sim_frequency: 100
 simulated_joints:
@@ -26,4 +28,31 @@ simulated_joints:
 - right_arm_4_joint
 - right_arm_5_joint
 - right_arm_6_joint
+simulated_links:
+- base_footprint
+- base_link
+- triangle_base_link
+- triangle_right_arm_link
+- calib_right_arm_base_link
+- right_arm_1_link
+- right_arm_2_link
+- right_arm_3_link
+- right_arm_4_link
+- right_arm_5_link
+- right_arm_6_link
+- right_arm_7_link
+- right_arm_flange_link
+- right_arm_cabling_adaptor_link
+- right_arm_adapter_iso50_kms40_frame_in
+- right_arm_adapter_iso50_kms40_frame_out
+- right_arm_kms40_frame_in
+- right_arm_kms40_frame_out
+- right_arm_adapter_kms40_fwk050_frame_in
+- right_arm_adapter_kms40_fwk050_frame_out
+- right_arm_fwk_fwa_050_frame_in
+- right_arm_fwk_fwa_050_frame_out
+- right_arm_adapter_fwa050_wsg50_frame_in
+- right_arm_adapter_fwa050_wsg50_frame_out
+- right_gripper_base_link
+- right_gripper_tool_frame
 watchdog_period: 0.1

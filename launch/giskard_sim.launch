@@ -9,4 +9,8 @@
          <arg name="sim" value="$(arg sim)" />
      </include>
 
+     <!--include file="$(find giskard_boxy)/launch/interactive_markers.launch" >
+         <arg name="sim" value="$(arg sim)" />
+     </include-->
+
  </launch>
