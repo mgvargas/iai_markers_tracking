@@ -4,7 +4,7 @@
     <!-- By default, we are not in debug mode -->
     <arg name="debug" default="false" />
     <arg name="sim" default="true" />
-    <arg name="rviz" default="false" />
+    <arg name="rviz" default="true" />
 
     <arg name="camera_frame_id" default="camera_optical_frame" />
 
@@ -23,6 +23,13 @@
         <include file="$(find iai_markers_tracking)/launch/giskard_sim.launch">
             <arg name="sim" value="$(arg sim)"/>
         </include>
+        <!--include file="$(find iai_naive_kinematics_sim)/launch/test_projection.launch"/-->
+        <node pkg="iai_naive_kinematics_sim" type="simulator"
+              name="simulator" output="screen">
+            <rosparam command="load"
+                file="$(find iai_naive_kinematics_sim)/test_data/test_projection_config.yaml" />
+            <remap from="~joint_states" to="joint_states" />
+        </node>
     </group>
 
     <!-- Object detection and database -->

@@ -61,7 +61,7 @@ class SelectGoal:
         # Gripper frames:
         self.grip_left = 'left_gripper_tool_frame'
         self.grip_right = 'right_gripper_tool_frame'
-        self.frame_base = 'base_footprint'
+        self.frame_base = 'base_link'
 
         # KDL chains:
         self.right_chain = kdl.Chain()
@@ -96,14 +96,18 @@ class SelectGoal:
                 if a < self.nJoints:
                     self.left_jnt_pos[a] = self.joint_values[i]
                     a += 1
+            elif 'right_arm' in x:
+                if b < self.nJoints:
+                    self.right_jnt_pos[b] = self.joint_values[i]
+                b += 1
             elif x == 'triangle_base_joint':
                 self.triang_base_joint = {'triangle_base_joint': self.joint_values[i]}
 
-        for i, x in enumerate(self.all_joint_names):
+        '''for i, x in enumerate(self.all_joint_names):
             if 'right_arm' in x:
                 if b < self.nJoints:
                     self.right_jnt_pos[b] = self.joint_values[i]
-                    b += 1
+                    b += 1'''
 
     def arms_chain(self):
         self.get_urdf()
