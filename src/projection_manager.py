@@ -118,8 +118,8 @@ class SelectGoal:
 
     def get_urdf(self):
         # Gets Boxy's URDF
-        rospack = rospkg.RosPack()
-        dir = rospack.get_path('iai_markers_tracking') + '/urdf/boxy_description.urdf'
+        # rospack = rospkg.RosPack()
+        # dir = rospack.get_path('iai_markers_tracking') + '/urdf/boxy_description.urdf'
         try:
             # self.urdf_model = urdf.Robot.from_xml_file(dir)
             self.urdf_model = URDF.from_parameter_server()

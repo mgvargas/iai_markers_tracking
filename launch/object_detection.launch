@@ -20,9 +20,9 @@
     <group if="$(arg sim)">
         <node name="object_poses" pkg="iai_markers_tracking" type="obj_publish_test.py"
               respawn="false" output="screen"/>
-        <include file="$(find iai_markers_tracking)/launch/giskard_sim.launch">
+        <!--include file="$(find iai_markers_tracking)/launch/giskard_sim.launch">
             <arg name="sim" value="$(arg sim)"/>
-        </include>
+        </include-->
         <!--include file="$(find iai_naive_kinematics_sim)/launch/test_projection.launch"/-->
         <node pkg="iai_naive_kinematics_sim" type="simulator"
               name="simulator" output="screen">
@@ -47,7 +47,9 @@
         </include>
     </group>
 
-    <!-- Boxy simulation ->
-    <include file="$(find iai_boxy_sim)/launch/boxy.launch"/-->
+    <!-- Boxy simulation -->
+    <group if="$(arg sim)">
+        <include file="$(find iai_boxy_sim)/launch/boxy.launch"/>
+    </group>
 
 </launch>
