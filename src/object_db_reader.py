@@ -41,7 +41,7 @@ class ObjectGraspingMarker:
         self.s = rospy.Service('get_object_info', GetObjectInfo, self.list_grasping_poses)
         self.tfBuffer = tf2_ros.Buffer()
         tf2_ros.TransformListener(self.tfBuffer)
-        self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback)
+        self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback_tf)
         self.camera_lis = rospy.Subscriber("/camera/camera_info", CameraInfo, self.callback_camera)
         self.object_pub = rospy.Publisher('found_objects', Object, queue_size=20)
         self.br = tf2_ros.TransformBroadcaster()
@@ -54,7 +54,7 @@ class ObjectGraspingMarker:
         self.grasp_poses = {}
         self.matching = []
 
-    def callback(self, data):
+    def callback_tf(self, data):
         # Get the list of frames published by tf
         str_data = data.transforms[0].child_frame_id
         self.frame_st.update({str_data})
@@ -309,29 +309,29 @@ class ObjectGraspingMarker:
 
 # Main function
 def main():
-    cl = ObjectGraspingMarker()
+    grasp_class = ObjectGraspingMarker()
     r = rospy.Rate(5)
     rospy.sleep(0.5)
     scheduler = BackgroundScheduler()
-    scheduler.add_job(cl.clear_v, 'interval', seconds=0.5)
+    scheduler.add_job(grasp_class.clear_v, 'interval', seconds=0.5)
     scheduler.start()
 
     marker_pub = rospy.Publisher('visualization_marker_array', MarkerArray, queue_size=5)
 
     # Open database YAML file
-    cl.op_file()
+    grasp_class.op_file()
 
     while not rospy.is_shutdown():
         marker_array = MarkerArray()
 
         # Find frames that are object markers
-        matching = cl.match_objects()
+        matching = grasp_class.match_objects()
 
         # Check if the objects are registered in the data base
-        obj_list = cl.find_obj(matching)
+        obj_list = grasp_class.find_obj(matching)
 
         # Get the transforms from the objects to the map frame
-        (markers, found_obj, finger1, finger2) = cl.publish_obj(obj_list)
+        (markers, found_obj, finger1, finger2) = grasp_class.publish_obj(obj_list)
 
         for obj in found_obj:
             marker_array.markers.append(found_obj[obj])
@@ -341,7 +341,7 @@ def main():
                 marker_array.markers.append(finger2[obj][n])
 
         # Publish a table, just for visualization
-        table = cl.create_table()
+        table = grasp_class.create_table()
         marker_array.markers.append(table)
 
         marker_pub.publish(marker_array)
