@@ -89,6 +89,7 @@ class SelectGoal:
         # Setting the current joint angles
         self.all_joint_names = data.name
         self.joint_values = data.position
+        self.odom_joints = {}
         # Getting current joint values of the arms
         a = b = 0
         for i, x in enumerate(self.all_joint_names):
@@ -102,12 +103,13 @@ class SelectGoal:
                 b += 1
             elif x == 'triangle_base_joint':
                 self.triang_base_joint = {'triangle_base_joint': self.joint_values[i]}
+            elif x == 'odom_x_joint':
+                self.odom_joints['odom_x_joint'] = self.joint_values[i]
+            elif x == 'odom_y_joint':
+                self.odom_joints['odom_y_joint'] = self.joint_values[i]
+            elif x == 'odom_z_joint':
+                self.odom_joints['odom_z_joint'] = self.joint_values[i]
 
-        '''for i, x in enumerate(self.all_joint_names):
-            if 'right_arm' in x:
-                if b < self.nJoints:
-                    self.right_jnt_pos[b] = self.joint_values[i]
-                    b += 1'''
 
     def arms_chain(self):
         self.get_urdf()
@@ -169,9 +171,9 @@ class SelectGoal:
         for n, pose in enumerate(self.grasping_poses):
             try:
                 self.trans_l[n] = self.tfBuffer.lookup_transform(self.grip_left, pose,
-                                                                 rospy.Time(0), rospy.Duration(1, 5e8))
+                                                                 rospy.Time(0), rospy.Duration(2, 5e8))
                 self.trans_r[n] = self.tfBuffer.lookup_transform(self.grip_right, pose,
-                                                                 rospy.Time(0), rospy.Duration(1, 5e8))
+                                                                 rospy.Time(0), rospy.Duration(2, 5e8))
                 self.pose_found = True
 
             except (tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException, tf2_ros.LookupException) as exc:
@@ -357,10 +359,20 @@ class SelectGoal:
     def yaml_writer(self):
         # Write a YAML file with the parameters for the simulated controller
         try:
+            # Open YAML configuration file
+            pack = rospkg.RosPack()
+            dir = pack.get_path('iai_markers_tracking') + '/config/controller_param.yaml'
+            stream = open(dir, 'r')
+            data = yaml.load(stream)
+
             # Get info
-            sim_joint_names = self.urdf_model.get_chain(self.frame_base, self.frame_end, links=False, fixed=False)
             sim_links_names = self.urdf_model.get_chain(self.frame_base, self.frame_end, joints=False, fixed=False)
-            joint_w_values = {}
+            if self.left_arm is True:
+                arm = 'left'
+            else:
+                arm = 'right'
+            '''joint_w_values = {}
+            joint_w_values.update(self.odom_joints)
             joint_w_values.update(self.triang_base_joint)
             for n, val in enumerate(self.joint_names):
                 if self.left_arm is True:
@@ -368,18 +380,21 @@ class SelectGoal:
                     joint_w_values.update({val: self.left_jnt_pos[n]})
                 else:
                     arm = 'right'
-                    joint_w_values.update({val: self.right_jnt_pos[n]})
-            data = {'simulated_joints': sim_joint_names, 'simulated_links': sim_links_names,
-                    'controlled_joints': self.joint_names, 'initial_config': joint_w_values, 'projection_mode': 'false',
-                    'sim_frequency': 100, 'watchdog_period': 0.1, 'goal_pose_name': self.goal_pose.child_frame_id,
-                    'arm':arm}
+                    joint_w_values.update({val: self.right_jnt_pos[n]})'''
+            controlled_joint_names = self.urdf_model.get_chain('odom', self.frame_end, links=False, fixed=False)
+            data['controlled_joints'] = controlled_joint_names
+            data['simulated_links'] = sim_links_names
+            # data['start_config'] = joint_w_values
+            data['projection_mode'] = False
+            data['goal_pose_name'] = self.goal_pose.child_frame_id
+            data['arm'] = arm
+            data['sim_frequency'] = 100
+            data['watchdog_period'] = 0.1
 
             # Write file
-            pack = rospkg.RosPack()
-            dir = pack.get_path('iai_markers_tracking') + '/config/controller_param.yaml'
             with open(dir, 'w') as outfile:
                 yaml.dump(data, outfile, default_flow_style=False)
-        except:  # yaml.YAMLError:
+        except yaml.YAMLError:
             rospy.logerr("Unexpected error while writing controller configuration YAML file:"), sys.exc_info()[0]
             return -1
 
@@ -413,7 +428,7 @@ class SelectGoal:
             limit_diff_left = [0] * len(self.left_joint_limits[1])
             for n, val in enumerate(self.left_joint_limits[1]):
                 limit_diff_left[n] = abs(self.left_joint_limits[1][n]) - abs(self.left_jnt_pos[n])
-                if limit_diff_left[n] < 0.001:
+                if limit_diff_left[n] < 0.0001:
                     limit_warning = True
                     rospy.logwarn('left_arm_joint_{} is close to or outside joint limits'.format(n))
             min_dist_to_limit_left = min(d for d in limit_diff_left)
@@ -421,7 +436,7 @@ class SelectGoal:
             limit_diff_right = [0] * len(self.right_joint_limits[1])
             for n, val in enumerate(self.right_joint_limits[1]):
                 limit_diff_right[n] = abs(self.right_joint_limits[1][n]) - abs(self.right_jnt_pos[n])
-                if limit_diff_right[n] < 0.001:
+                if limit_diff_right[n] < 0.0001:
                     limit_warning = True
                     rospy.logwarn('right_arm_joint_{} is close to or outside joint limits'.format(n))
             min_dist_to_limit_right = min(d for d in limit_diff_right)
