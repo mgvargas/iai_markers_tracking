@@ -25,7 +25,6 @@ import rospkg
 import tf2_ros
 import PyKDL as kdl
 import numpy as np
-import copy
 from urdf_parser_py.urdf import URDF
 from iai_markers_tracking.msg import MoveToGPAction, MoveToGPFeedback, MoveToGPResult
 from giskard_msgs.msg import WholeBodyGoal, WholeBodyCommand, SemanticFloat64, ArmCommand, WholeBodyAction
@@ -49,8 +48,7 @@ class MoveToGPServer:
         self.server.start()
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
-        '''self.giskard = actionlib.SimpleActionClient('controller_action_server/move', WholeBodyAction)
-        self.giskard.wait_for_server()'''
+        # self.giskard = actionlib.SimpleActionClient('controller_action_server/move', WholeBodyAction)
 
         # Variable definition
         self.grip_left = 'left_gripper_tool_frame'
@@ -122,7 +120,6 @@ class MoveToGPServer:
                                                                                    self.pose_name))
         # rospy.loginfo(goal.grasping_pose)
 
-        self.get_controller_param()
         self.get_urdf()
         self.qpoases_config()
         self.qpoases_calculation()
@@ -144,21 +141,9 @@ class MoveToGPServer:
         except (OSError, LookupError) as error:
             rospy.logerr("Unexpected error while reading URDF:"), sys.exc_info()[0]
 
-    def get_controller_param(self):
-        # Read parameters from a YAML file
-        try:
-            pack = rospkg.RosPack()
-            file_dir = pack.get_path('iai_markers_tracking') + '/config/controller_param.yaml'
-            with open(file_dir, 'r') as f:
-                config_file = f.read()
-                self.yaml_file = yaml.load(config_file)  # Creates a dictionary
-                # print self.yaml_file
-        except:
-            rospy.logerr("Unexpected error while reading YAML file:"), sys.exc_info()[0]
-            return -1
-
     def generate_trajectory(self):
         # Call giskard to generate trajectory
+        self.giskard.wait_for_server()
         goal = WholeBodyGoal()
         arm = ArmCommand()
         success = False
@@ -217,21 +202,6 @@ class MoveToGPServer:
         n_slack = 6
         self.sweights = np.ones((n_slack))*2
 
-        # Get the name of the links to simutale
-        # TODO: probably delete this part
-        joints = self.yaml_file['simulated_joints']
-        del joints[1]
-        links = [self.frame_base]
-        for n,joint in enumerate(joints):
-            links.append(joint[0:-5]+'link')
-        if self.yaml_file['arm'] == 'right':
-            links.append('right_arm_7_link')
-            self.gripper = self.grip_right
-        else:
-            links.append('left_arm_7_link')
-            self.gripper = self.grip_left
-        links.append(self.gripper)
-
         # Get links length
         # self.links_length = self.get_links_length(links)
 
@@ -239,13 +209,6 @@ class MoveToGPServer:
         self.kinem_chain(self.gripper)
         # Set initial joint vel to 0
         self.joint_velocity = [0] * self.nJoints
-
-        # Initial joint values
-        '''init_joint_val = []
-        for key in sorted(self.yaml_file['start_config'].iterkeys()):
-            init_joint_val.append(self.yaml_file['start_config'][key])
-        init_joint_val.insert(0, init_joint_val.pop(-1))
-        self.joint_values = copy.deepcopy(init_joint_val)'''
 
         # Calculate acceleration limits
         self.acceleration_limits()
@@ -391,24 +354,6 @@ class MoveToGPServer:
             print 'Now: ', eef_posit
 
         # rospy.spin()
-
-    # TODO: possibly delete function
-    def get_links_length(self, links):
-        links_length = [None] * (len(links) - 1)
-        for n, link in enumerate(links[0:-1]):
-            try:
-                distance = self.tfBuffer.lookup_transform(link, links[n + 1],
-                                                               rospy.Time(0), rospy.Duration(1, 5e8))
-
-            except (tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException, tf2_ros.LookupException) as exc:
-                rospy.logerr('No TF found between %s and %s. ', link, links[n + 1])
-                continue
-            else:
-                links_length[n] = math.sqrt(distance.transform.translation.x ** 2 +
-                                                 distance.transform.translation.y ** 2 +
-                                                 distance.transform.translation.z ** 2)
-                # rospy.loginfo('Distance between %s and %s, dist %f. ', link, links[n + 1],self.dist[n])
-        return links_length
 
     #def kinem_chain(self, name_frame_end, name_frame_base='base_link'):
     def kinem_chain(self, name_frame_end, name_frame_base='odom'):
