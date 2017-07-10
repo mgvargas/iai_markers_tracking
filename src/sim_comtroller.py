@@ -28,7 +28,6 @@ import numpy as np
 from urdf_parser_py.urdf import URDF
 from iai_markers_tracking.msg import MoveToGPAction, MoveToGPFeedback, MoveToGPResult
 from giskard_msgs.msg import WholeBodyGoal, WholeBodyCommand, SemanticFloat64, ArmCommand, WholeBodyAction
-from iai_naive_kinematics_sim.srv import SetJointState
 from iai_naive_kinematics_sim.msg import ProjectionClock
 from kdl_parser import kdl_tree_from_urdf_model
 from sensor_msgs.msg import JointState
@@ -57,7 +56,7 @@ class MoveToGPServer:
         self.ik_lambda = 0.35
         self.slack_limit = 300
         self.nJoints = 8+3
-        # self.joint_values = [0.0]*(self.nJoints)
+        self.arm = 'left'
         self.joint_values = np.empty([self.nJoints])
         self.joint_values_kdl = kdl.JntArray(self.nJoints)
         self.eef_pose = kdl.Frame()
@@ -79,8 +78,10 @@ class MoveToGPServer:
         a, n = 4, 0#1
         if self.arm == 'right':
             arm = 'right_arm'
+            self.gripper = self.grip_right
         else:
             arm = 'left_arm'
+            self.gripper = self.grip_left
 
         for i, x in enumerate(self.all_joint_names):
             if arm in x and (a-3) < (self.nJoints):
@@ -95,7 +96,7 @@ class MoveToGPServer:
                 try:
                     self.joint_values[3] = self.all_joint_values[i]
                     self.joint_values_kdl[3] = self.all_joint_values[i]
-                    self.start_base = i
+                    self.triang_list_pos = i
                 except IndexError:
                     index_error = True
             elif 'odom' in x:
@@ -106,7 +107,11 @@ class MoveToGPServer:
                     n += 1
                 except IndexError:
                     index_error = True
-        self.calc_eef_position(self.joint_values)
+
+        try:
+            self.calc_eef_position(self.joint_values)
+        except AttributeError:
+            pass
 
     def execute_action(self, goal):
         # Variable definition
@@ -119,7 +124,7 @@ class MoveToGPServer:
         rospy.loginfo('%s: Executing, creating trajectory to grasping pose %s:' % (self._action_name,
                                                                                    self.pose_name))
         # rospy.loginfo(goal.grasping_pose)
-
+        np.set_printoptions(suppress=True, precision=2, linewidth=120)
         self.get_urdf()
         self.qpoases_config()
         self.qpoases_calculation()
@@ -141,6 +146,7 @@ class MoveToGPServer:
         except (OSError, LookupError) as error:
             rospy.logerr("Unexpected error while reading URDF:"), sys.exc_info()[0]
 
+    # TODO: delete this function
     def generate_trajectory(self):
         # Call giskard to generate trajectory
         self.giskard.wait_for_server()
@@ -195,15 +201,11 @@ class MoveToGPServer:
         # Links length          - self.links_length
         # Joint weights         - self.jweights
         # Target pose           - self.goal_pose
-        np.set_printoptions(suppress=True)
-        np.set_printoptions(precision=2)
+        np.set_printoptions(suppress=True, precision=2, linewidth=120)
 
         #Variables
         n_slack = 6
         self.sweights = np.ones((n_slack))*2
-
-        # Get links length
-        # self.links_length = self.get_links_length(links)
 
         # Joint limits: self.joint_limits_upper, self.joint_limits_lower
         self.kinem_chain(self.gripper)
@@ -214,12 +216,14 @@ class MoveToGPServer:
         self.acceleration_limits()
 
         # Error in EEF position
-        quat = [self.goal_pose.transform.rotation.x, self.goal_pose.transform.rotation.y,
-                self.goal_pose.transform.rotation.z, self.goal_pose.transform.rotation.w]
-        self.goal_orient = self.quaternion_to_euler(quat)
+        self.goal_quat = np.array([self.goal_pose.transform.rotation.x, self.goal_pose.transform.rotation.y,
+                         self.goal_pose.transform.rotation.z, self.goal_pose.transform.rotation.w])
+        # self.goal_orient = self.quaternion_to_euler(self.goal_quat)
         eef_orient_quat = self.rotation_to_quaternion(self.eef_pose.M)
-        eef_orient = self.quaternion_to_euler(eef_orient_quat)
-        self.error_orient = self.goal_orient - eef_orient
+        q_interp = self.slerp(eef_orient_quat, self.goal_quat, t=0.1)
+        # eef_orient = self.quaternion_to_euler(eef_orient_quat)
+        # self.error_orient = self.goal_orient - eef_orient
+        self.error_orient = self.quaternion_to_euler(q_interp)
 
         self.goal_posit = np.array([self.goal_pose.transform.translation.x, self.goal_pose.transform.translation.y,
                                self.goal_pose.transform.translation.z])
@@ -248,8 +252,8 @@ class MoveToGPServer:
         # self.ubA = np.hstack((self.error_posit, self.error_orient, self.joint_dist_upper_lim, self.ac_lim_upper))
         self.lbA = np.hstack((self.error_posit, self.error_orient, self.joint_dist_lower_lim))
         self.ubA = np.hstack((self.error_posit, self.error_orient, self.joint_dist_upper_lim))
-        print 'lbA ', np.shape(self.lbA), '\n', self.lbA
-        print 'ubA ', np.shape(self.ubA), '\n', self.ubA
+        # print 'lbA ', np.shape(self.lbA), '\n', self.lbA
+        # print 'ubA ', np.shape(self.ubA), '\n', self.ubA
 
         # Create vector g
         self.g = np.zeros(self.nJoints+n_slack)
@@ -283,7 +287,7 @@ class MoveToGPServer:
         vel_calculation.setOptions(options)
         Opt = np.zeros(self.problem_size[1])
         i = 0
-        precision = [0.1, 0.1, 0.1]
+        precision = [0.1, 0.1, 0.03]
 
         return_value = vel_calculation.init(self.H, self.g, self.A, self.lb, self.ub, self.lbA, self.ubA, nWSR)
 
@@ -293,7 +297,7 @@ class MoveToGPServer:
 
         vel_calculation.getPrimalSolution(Opt)
 
-        # Config iai_naive_kinematics_sim
+        # Config iai_naive_kinematics_sim, send commands
         clock = ProjectionClock()
         velocity_msg = JointState()
         velocity_msg.name = self.all_joint_names
@@ -307,51 +311,72 @@ class MoveToGPServer:
         clock.now = rospy.get_rostime()
         clock.period.nsecs = 10000000
         self.pub_clock.publish(clock)
+        print 'error: ', self.error_posit
 
-        # rospy.wait_for_service('/boxy/set_joint_states')
-
-        # while not rospy.is_shutdown():
         while np.any(limit_p > precision) and i < 600:
             # Solve QP.
             i += 1
             nWSR = np.array([100])
+            self.acceleration_limits()
             self.joint_dist_lower_lim = self.joint_limits_lower - self.joint_values
             self.joint_dist_upper_lim = self.joint_limits_upper - self.joint_values
             self.lbA = np.hstack((self.error_posit, self.error_orient, self.joint_dist_lower_lim))
             self.ubA = np.hstack((self.error_posit, self.error_orient, self.joint_dist_upper_lim))
 
-            return_value = vel_calculation.hotstart(self.H, self.g, self.A, self.lb, self.ub, self.lbA, self.ubA, nWSR)
+            # recalculate H matrix
+            self.calculate_weigths()
+
+            # return_value = vel_calculation.hotstart(self.H, self.g, self.A, self.lb, self.ub, self.lbA, self.ubA, nWSR)
+            return_value = vel_calculation.init(self.H, self.g, self.A, self.lb, self.ub, self.lbA, self.ubA, nWSR)
 
             if return_value != returnValue.SUCCESSFUL_RETURN:
                 rospy.logerr("Hotstart of QP-Problem returned without success! ERROR MESSAGE: ")
                 return -1
 
-            for x,vel in enumerate(Opt[1:(self.nJoints)]):
+            for x,vel in enumerate(Opt[4:(self.nJoints)]):
                 p = self.start_arm[x]
                 velocity_msg.velocity[p] = vel
-            velocity_msg.velocity[self.start_base] = Opt[0]
+            # If error and velocity have different signs, correct it
+            if self.error_posit[2] * Opt[3] < 0:
+                velocity_msg.velocity[self.triang_list_pos] = -Opt[3]
+            else:
+                velocity_msg.velocity[self.triang_list_pos] = Opt[3]
+            if self.error_posit[0]*Opt[0] < 0:
+                velocity_msg.velocity[0] = -Opt[0]
+            else:
+                velocity_msg.velocity[0] = Opt[0]
+            if self.error_posit[1]*Opt[1] < 0:
+                velocity_msg.velocity[1] = -Opt[1]
+            else:
+                velocity_msg.velocity[1] = Opt[1]
 
             # velocity_msg.position = self.all_joint_values
             # print velocity_msg
+            for n,j in enumerate(velocity_msg.name):
+                print j, velocity_msg.velocity[n]
 
             # Recalculate Error in EEF position
             eef_orient_quat = self.rotation_to_quaternion(self.eef_pose.M)
-            eef_orient = self.quaternion_to_euler(eef_orient_quat)
-            # self.error_orient = self.goal_orient - eef_orient
+            q_interp = self.slerp(eef_orient_quat, self.goal_quat, t=0.1)
+            orient_error = q_interp - eef_orient_quat
+            # self.error_orient = self.quaternion_to_euler(orient_error)
             self.error_orient = [0.0, 0.0, 0.0, 0.0]
-
             eef_posit = np.array([self.eef_pose.p[0], self.eef_pose.p[1], self.eef_pose.p[2]])
             self.error_posit = self.goal_posit - eef_posit
 
-            # Config iai_naive_kinematics_sim
+            # Print velocity for iai_naive_kinematics_sim
             self.pub_velocity.publish(velocity_msg)
             self.pub_clock.publish(clock)
 
             print 'joint_vel', Opt
             print '\n iter: ', i
+            # print 'EEF: ', eef_orient_quat
+            # print 'Goal: ', self.goal_quat
+            # print 'Slerp:', q_interp
+            # print 'error:', orient_error
             print 'error: ', self.error_posit
-            print 'Goal: ', self.goal_posit
-            print 'Now: ', eef_posit
+            # print 'Goal: ', self.goal_posit
+            # print 'Now: ', eef_posit
 
         # rospy.spin()
 
@@ -433,7 +458,7 @@ class MoveToGPServer:
         x = (rot_matrix[2, 1] - rot_matrix[1, 2])/(4*w)
         y = (rot_matrix[0, 2] - rot_matrix[2, 0])/(4*w)
         z = (rot_matrix[1, 0] - rot_matrix[0, 1])/(4*w)
-        return [x, y, z, w]
+        return np.array([x, y, z, w])
 
     @staticmethod
     def quaternion_to_euler(q):
@@ -448,6 +473,34 @@ class MoveToGPServer:
         yaw = math.atan2(t3, t4)
         return np.array([roll, pitch, yaw])
 
+    def slerp(self, q0, q1, t=1.0):
+        # Interpolation between 2 quaternions, from 0 <= t <= 1
+        dot_threshold = 0.9995
+        q0_norm = self.normalize_quat(q0)
+        q1_norm = self.normalize_quat(q1)
+        dot = q0_norm[1]*q1_norm[1] + q0_norm[2]*q1_norm[2] + q0_norm[3]*q1_norm[3]
+
+        # if quaternions are too close, do linear interpolation
+        if abs(dot)>dot_threshold:
+            q_slerp = q0_norm + t*(q1_norm-q0_norm)
+            return q_slerp
+        # if slerp wants to take the long path (>180 deg), change it
+        if dot < 0.0:
+            q1_norm = -q1_norm
+            dot = -dot
+        theta_0 = math.acos(dot)
+        theta = theta_0*t
+        q2 = q1_norm - q0_norm*dot
+        q2_norm = self.normalize_quat(q2)
+
+        return q0*math.cos(theta) + q2_norm*math.sin(theta)
+
+    @staticmethod
+    def normalize_quat(q):
+        norm = math.sqrt(q[0]**2 + q[1]**2 + q[2]**2 + q[3]**2)
+        q_norm = q / norm
+        return q_norm
+
     def get_jacobian(self):
         # Obtain jacobian for the selected arm
         self.jac_solver = kdl.ChainJntToJacSolver(self.chain)
@@ -461,6 +514,55 @@ class MoveToGPServer:
         jac_array = np.reshape(jac_array, (jacobian.rows(), jacobian.columns()))
 
         return jac_array
+
+    def calculate_weigths(self):
+        # Weigth of an active/inactive joint
+        active_joint = 1e-4
+        inact_joint = 10
+        self.A[0, 0] = 1
+        self.A[1, 1] = 1
+        # Distange range of changing weight values
+        a, b = 0.7, 1.1
+        w_len = len(np.diag(self.jweights))
+        jweights = np.ones(w_len)
+
+        # Find bigger distance to goal (x or y)
+        if abs(self.error_posit[0]) > abs(self.error_posit[1]):
+            dist = abs(self.error_posit[0])
+        else:
+            dist = abs(self.error_posit[1])
+
+        # If the robot is too far away, move only the base
+        if dist >= b:
+            jweights = np.ones(w_len)*inact_joint
+            if abs(self.error_posit[0]) > b:
+                jweights[0] = active_joint
+            if abs(self.error_posit[1]) > b:
+                jweights[1] = active_joint
+
+        # Weights will go from 0.01 to 1, depending on the distance to the goal
+        elif a < dist < b:
+            # Base joints will have lower weights when far from the goal
+            for n,w in enumerate(jweights):
+                new_w = (inact_joint - active_joint)*(dist - a)/(b - a) + active_joint
+                jweights[n] = new_w
+            jweights[0] = (active_joint -inact_joint)*(dist - a)/(b - a) + inact_joint
+            jweights[1] = (active_joint -inact_joint)*(dist - a)/(b - a) + inact_joint
+
+        else:
+            jweights = np.ones(w_len)*active_joint
+            jweights[0] = inact_joint
+            jweights[1] = inact_joint
+            self.A[0,0] = 0
+            self.A[1,1] = 0
+            self.lbA[7], self.ubA[7] = 0, 0
+            self.lbA[8], self.ubA[8] = 0, 0
+
+        jweights[2] = 0
+        self.jweights = np.diag(jweights)
+        self.H = np.diag(np.hstack((np.diag(self.jweights), self.sweights)))
+        print '--- Base weight: [%.4f, %.4f] \n--- Arm weight: %.4f'%(jweights[0],jweights[1],jweights[4])
+
 
 if __name__ == '__main__':
     rospy.init_node('move_to_gp_server')
