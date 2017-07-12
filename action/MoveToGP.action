@@ -5,8 +5,10 @@ geometry_msgs/TransformStamped grasping_pose
 string arm      # Do I need to specify the arm here??
 ---
 # Result
-geometry_msgs/PoseStamped[] trajectory 
+#geometry_msgs/PoseStamped[] trajectory 
+sensor_msgs/JointState[] trajectory 
 ---
 # Feedback
 string sim_status
-geometry_msgs/PoseStamped[] sim_trajectory
+# geometry_msgs/PoseStamped[] sim_trajectory
+sensor_msgs/JointState[] sim_trajectory

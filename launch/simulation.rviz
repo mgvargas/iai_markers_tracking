@@ -61,7 +61,37 @@ Visualization Manager:
       Marker Topic: visualization_marker_array
       Name: MarkerArray
       Namespaces:
-        {}
+        cup: true
+        cup_gp1: true
+        cup_gp1_f1: true
+        cup_gp1_f2: true
+        cup_gp2: true
+        cup_gp2_f1: true
+        cup_gp2_f2: true
+        cup_gp3: true
+        cup_gp3_f1: true
+        cup_gp3_f2: true
+        kitchen_table: true
+        knorr_tomate: true
+        knorr_tomate_gp1: true
+        knorr_tomate_gp1_f1: true
+        knorr_tomate_gp1_f2: true
+        knorr_tomate_gp2: true
+        knorr_tomate_gp2_f1: true
+        knorr_tomate_gp2_f2: true
+        mondamin: true
+        mondamin_gp1: true
+        mondamin_gp1_f1: true
+        mondamin_gp1_f2: true
+        mondamin_gp2: true
+        mondamin_gp2_f1: true
+        mondamin_gp2_f2: true
+        mondamin_gp3: true
+        mondamin_gp3_f1: true
+        mondamin_gp3_f2: true
+        mondamin_gp4: true
+        mondamin_gp4_f1: true
+        mondamin_gp4_f2: true
       Queue Size: 100
       Value: true
     - Class: rviz/TF
@@ -69,13 +99,337 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        base_footprint:
+          Value: true
+        base_link:
+          Value: true
+        calib_left_arm_base_link:
+          Value: true
+        calib_right_arm_base_link:
+          Value: true
+        camera_optical_frame:
+          Value: true
+        cup:
+          Value: true
+        cup_gp1:
+          Value: true
+        cup_gp2:
+          Value: true
+        cup_gp3:
+          Value: true
+        head_mount_kinect2_rgb_optical_frame:
+          Value: true
+        knorr_tomate:
+          Value: true
+        knorr_tomate_gp1:
+          Value: true
+        knorr_tomate_gp2:
+          Value: true
+        laser_reference_back:
+          Value: true
+        laser_reference_front:
+          Value: true
+        left_arm_1_link:
+          Value: true
+        left_arm_2_link:
+          Value: true
+        left_arm_3_link:
+          Value: true
+        left_arm_4_link:
+          Value: true
+        left_arm_5_link:
+          Value: true
+        left_arm_6_link:
+          Value: true
+        left_arm_7_link:
+          Value: true
+        left_arm_adapter_fwa050_wsg50_frame_in:
+          Value: true
+        left_arm_adapter_fwa050_wsg50_frame_out:
+          Value: true
+        left_arm_adapter_iso50_kms40_frame_in:
+          Value: true
+        left_arm_adapter_iso50_kms40_frame_out:
+          Value: true
+        left_arm_adapter_kms40_fwk050_frame_in:
+          Value: true
+        left_arm_adapter_kms40_fwk050_frame_out:
+          Value: true
+        left_arm_cabling_adaptor_link:
+          Value: true
+        left_arm_flange_link:
+          Value: true
+        left_arm_fwk_fwa_050_frame_in:
+          Value: true
+        left_arm_fwk_fwa_050_frame_out:
+          Value: true
+        left_arm_kms40_frame_in:
+          Value: true
+        left_arm_kms40_frame_out:
+          Value: true
+        left_gripper_base_link:
+          Value: true
+        left_gripper_finger_left_link:
+          Value: true
+        left_gripper_finger_right_link:
+          Value: true
+        left_gripper_gripper_left_link:
+          Value: true
+        left_gripper_gripper_right_link:
+          Value: true
+        left_gripper_tool_frame:
+          Value: true
+        left_wrist_optical_frame:
+          Value: true
+        left_wrist_optical_frame_x:
+          Value: true
+        limit_box:
+          Value: true
+        limit_box2:
+          Value: true
+        map:
+          Value: true
+        mondamin:
+          Value: true
+        mondamin_gp1:
+          Value: true
+        mondamin_gp2:
+          Value: true
+        mondamin_gp3:
+          Value: true
+        mondamin_gp4:
+          Value: true
+        neck_adapter_iso50_kinect2_frame_in:
+          Value: true
+        neck_adapter_iso50_kinect2_frame_out:
+          Value: true
+        neck_adapter_ur3_frame_in:
+          Value: true
+        neck_adapter_ur3_frame_out:
+          Value: true
+        neck_base:
+          Value: true
+        neck_base_link:
+          Value: true
+        neck_ee_link:
+          Value: true
+        neck_forearm_link:
+          Value: true
+        neck_shoulder_link:
+          Value: true
+        neck_tool0:
+          Value: true
+        neck_upper_arm_link:
+          Value: true
+        neck_wrist_1_link:
+          Value: true
+        neck_wrist_2_link:
+          Value: true
+        neck_wrist_3_link:
+          Value: true
+        odom:
+          Value: true
+        odom_x_frame:
+          Value: true
+        odom_y_frame:
+          Value: true
+        right_arm_1_link:
+          Value: true
+        right_arm_2_link:
+          Value: true
+        right_arm_3_link:
+          Value: true
+        right_arm_4_link:
+          Value: true
+        right_arm_5_link:
+          Value: true
+        right_arm_6_link:
+          Value: true
+        right_arm_7_link:
+          Value: true
+        right_arm_adapter_fwa050_wsg50_frame_in:
+          Value: true
+        right_arm_adapter_fwa050_wsg50_frame_out:
+          Value: true
+        right_arm_adapter_iso50_kms40_frame_in:
+          Value: true
+        right_arm_adapter_iso50_kms40_frame_out:
+          Value: true
+        right_arm_adapter_kms40_fwk050_frame_in:
+          Value: true
+        right_arm_adapter_kms40_fwk050_frame_out:
+          Value: true
+        right_arm_cabling_adaptor_link:
+          Value: true
+        right_arm_flange_link:
+          Value: true
+        right_arm_fwk_fwa_050_frame_in:
+          Value: true
+        right_arm_fwk_fwa_050_frame_out:
+          Value: true
+        right_arm_kms40_frame_in:
+          Value: true
+        right_arm_kms40_frame_out:
+          Value: true
+        right_gripper_base_link:
+          Value: true
+        right_gripper_finger_left_link:
+          Value: true
+        right_gripper_finger_right_link:
+          Value: true
+        right_gripper_gripper_left_link:
+          Value: true
+        right_gripper_gripper_right_link:
+          Value: true
+        right_gripper_tool_frame:
+          Value: true
+        shoulder_kinect_link:
+          Value: true
+        tag_0:
+          Value: true
+        tag_1:
+          Value: true
+        tag_5:
+          Value: true
+        torso_base_link:
+          Value: true
+        triangle_base_link:
+          Value: true
+        triangle_left_arm_link:
+          Value: true
+        triangle_right_arm_link:
+          Value: true
       Marker Scale: 0.300000012
       Name: TF
-      Show Arrows: true
+      Show Arrows: false
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        map:
+          camera_optical_frame:
+            tag_0:
+              knorr_tomate:
+                knorr_tomate_gp1:
+                  {}
+                knorr_tomate_gp2:
+                  {}
+            tag_1:
+              cup:
+                cup_gp1:
+                  {}
+                cup_gp2:
+                  {}
+                cup_gp3:
+                  {}
+            tag_5:
+              mondamin:
+                mondamin_gp1:
+                  {}
+                mondamin_gp2:
+                  {}
+                mondamin_gp3:
+                  {}
+                mondamin_gp4:
+                  {}
+          odom:
+            odom_x_frame:
+              odom_y_frame:
+                base_footprint:
+                  base_link:
+                    laser_reference_back:
+                      {}
+                    laser_reference_front:
+                      {}
+                    limit_box:
+                      {}
+                    limit_box2:
+                      {}
+                    neck_adapter_ur3_frame_in:
+                      neck_adapter_ur3_frame_out:
+                        neck_base_link:
+                          neck_base:
+                            {}
+                          neck_shoulder_link:
+                            neck_upper_arm_link:
+                              neck_forearm_link:
+                                neck_wrist_1_link:
+                                  neck_wrist_2_link:
+                                    neck_wrist_3_link:
+                                      neck_ee_link:
+                                        {}
+                                      neck_tool0:
+                                        neck_adapter_iso50_kinect2_frame_in:
+                                          neck_adapter_iso50_kinect2_frame_out:
+                                            head_mount_kinect2_rgb_optical_frame:
+                                              {}
+                    shoulder_kinect_link:
+                      {}
+                    torso_base_link:
+                      {}
+                    triangle_base_link:
+                      triangle_left_arm_link:
+                        calib_left_arm_base_link:
+                          left_arm_1_link:
+                            left_arm_2_link:
+                              left_arm_3_link:
+                                left_arm_4_link:
+                                  left_arm_5_link:
+                                    left_arm_6_link:
+                                      left_arm_7_link:
+                                        left_arm_flange_link:
+                                          left_arm_cabling_adaptor_link:
+                                            left_arm_adapter_iso50_kms40_frame_in:
+                                              left_arm_adapter_iso50_kms40_frame_out:
+                                                left_arm_kms40_frame_in:
+                                                  left_arm_kms40_frame_out:
+                                                    left_arm_adapter_kms40_fwk050_frame_in:
+                                                      left_arm_adapter_kms40_fwk050_frame_out:
+                                                        left_arm_fwk_fwa_050_frame_in:
+                                                          left_arm_fwk_fwa_050_frame_out:
+                                                            left_arm_adapter_fwa050_wsg50_frame_in:
+                                                              left_arm_adapter_fwa050_wsg50_frame_out:
+                                                                left_gripper_base_link:
+                                                                  left_gripper_gripper_left_link:
+                                                                    left_gripper_finger_left_link:
+                                                                      {}
+                                                                    left_gripper_gripper_right_link:
+                                                                      left_gripper_finger_right_link:
+                                                                        {}
+                                                                  left_gripper_tool_frame:
+                                                                    {}
+                                                                  left_wrist_optical_frame_x:
+                                                                    left_wrist_optical_frame:
+                                                                      {}
+                      triangle_right_arm_link:
+                        calib_right_arm_base_link:
+                          right_arm_1_link:
+                            right_arm_2_link:
+                              right_arm_3_link:
+                                right_arm_4_link:
+                                  right_arm_5_link:
+                                    right_arm_6_link:
+                                      right_arm_7_link:
+                                        right_arm_flange_link:
+                                          right_arm_cabling_adaptor_link:
+                                            right_arm_adapter_iso50_kms40_frame_in:
+                                              right_arm_adapter_iso50_kms40_frame_out:
+                                                right_arm_kms40_frame_in:
+                                                  right_arm_kms40_frame_out:
+                                                    right_arm_adapter_kms40_fwk050_frame_in:
+                                                      right_arm_adapter_kms40_fwk050_frame_out:
+                                                        right_arm_fwk_fwa_050_frame_in:
+                                                          right_arm_fwk_fwa_050_frame_out:
+                                                            right_arm_adapter_fwa050_wsg50_frame_in:
+                                                              right_arm_adapter_fwa050_wsg50_frame_out:
+                                                                right_gripper_base_link:
+                                                                  right_gripper_gripper_left_link:
+                                                                    right_gripper_finger_left_link:
+                                                                      {}
+                                                                    right_gripper_gripper_right_link:
+                                                                      right_gripper_finger_right_link:
+                                                                        {}
+                                                                  right_gripper_tool_frame:
+                                                                    {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -292,28 +646,6 @@ Visualization Manager:
           Show Trail: false
           Value: true
         neck_forearm_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        neck_look_target:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        neck_look_target_2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        neck_look_target_3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        neck_look_target_4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        neck_obstacle:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -544,10 +876,10 @@ Visualization Manager:
       Focal Shape Size: 0.0500000007
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.230399609
+      Pitch: 0.340399504
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.47359896
+      Yaw: 5.2585969
     Saved: ~
 Window Geometry:
   Displays:
@@ -566,4 +898,4 @@ Window Geometry:
     collapsed: true
   Width: 1313
   X: 53
-  Y: 24
+  Y: 456

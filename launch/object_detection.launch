@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 
-    <!-- By default, we are not in debug mode -->
+    <!-- Parameters -->
     <arg name="debug" default="false" />
     <arg name="sim" default="true" />
     <arg name="rviz" default="true" />
+    <arg name="naive" default="false" />
 
     <arg name="camera_frame_id" default="camera_optical_frame" />
 
@@ -26,12 +27,10 @@
         <!--include file="$(find iai_markers_tracking)/launch/giskard_sim.launch">
             <arg name="sim" value="$(arg sim)"/>
         </include-->
-        <node pkg="iai_naive_kinematics_sim" type="simulator"
-              name="simulator" output="screen">
-            <rosparam command="load"
-                file="$(find iai_markers_tracking)/config/controller_param.yaml" />
-            <remap from="~joint_states" to="joint_states" />
-        </node>
+        <group if="$(arg naive)">
+            <include file="$(find iai_markers_tracking)/launch/giskard_sim.launch"/>
+        </group>
+
     </group>
 
     <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server" />

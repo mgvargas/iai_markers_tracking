@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   genmsg actionlib_msgs actionlib
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -71,6 +72,7 @@ generate_messages(
   visualization_msgs
   std_msgs
   actionlib_msgs
+  sensor_msgs
 )
 
 ################################################
@@ -103,7 +105,7 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  CATKIN_DEPENDS message_runtime
+  CATKIN_DEPENDS message_runtime sensor_msgs
 #  INCLUDE_DIRS include
 #  LIBRARIES iai_markers_tracking
 #  CATKIN_DEPENDS roscpp visualization_msgs
