@@ -195,7 +195,7 @@ class ObjectGraspingMarker:
                 mar.color.a = 0.5
                 mar.lifetime = rospy.Time(1)
                 mar.color.g = 0.5
-                mar.color.r = mar.color.b = 0.7
+                mar.color.r = mar.color.b = 0.6
                 mar.scale.x = mar.scale.y = mar.scale.z = 0.01
                 # Marker pose
                 pos = self.yaml_file[k]['grasping_poses'][n]['position']
@@ -217,15 +217,15 @@ class ObjectGraspingMarker:
                 finger1.pose.position.x = -(self.yaml_file[k]['gripper_opening']) / 2
                 finger1.pose.position.y = 0
                 finger1.pose.position.z = 0
-                finger1.pose.orientation.x = 0
-                finger1.pose.orientation.y = 0
-                finger1.pose.orientation.z = 0
-                finger1.pose.orientation.w = 1
+                finger1.pose.orientation.x = 0.0
+                finger1.pose.orientation.y = 0.0
+                finger1.pose.orientation.z = 0.0
+                finger1.pose.orientation.w = 1.0
                 finger2 = copy.deepcopy(finger1)
                 finger2.pose.position.x = (self.yaml_file[k]['gripper_opening']) / 2
                 finger2.pose.position.y = 0.005
-                finger2.pose.orientation.z = 1
-                finger2.pose.orientation.w = 0
+                finger2.pose.orientation.z = 1.0
+                finger2.pose.orientation.w = 0.0
                 finger2.ns = mar.ns + '_f2'
                 finger1.id = self.yaml_file[k]['id'] * 2000 + n
                 return mar, pos[0], pos[1], pos[2], orien, finger1, finger2
@@ -292,7 +292,7 @@ class ObjectGraspingMarker:
         table.action = table.ADD
         table.lifetime = rospy.Time(2)
         table.scale.x = table.scale.y = table.scale.z = 1.0
-        quaternion = tf.transformations.quaternion_from_euler(0, math.pi * 0, 0)
+        quaternion = tf.transformations.quaternion_from_euler(0, 0, math.pi * 0.5)
         table.pose.position.x = 0
         table.pose.position.y = 0
         table.pose.position.z = 0
@@ -302,7 +302,7 @@ class ObjectGraspingMarker:
         table.pose.orientation.w = quaternion[3]
         table.scale.x = table.scale.y = table.scale.z = 1.0
         table.color.r = table.color.g = 0.2
-        table.color.b = 0.5
+        table.color.b = 0.3
         table.color.a = 1.0
         return table
 

@@ -38,9 +38,9 @@ def main():
         camera.header.frame_id = 'camera_optical_frame'
         camera_pub.publish(camera)
 
-        quaternion0 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(-5), 0)
+        quaternion0 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(85), math.radians(0))
         quaternion1 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(0), math.radians(0))
-        quaternion2 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(-5), 0)
+        quaternion2 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(85), 0)
         quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-14), math.radians(-15), 0)
         quaternion4 = tf.transformations.quaternion_from_euler(-math.pi/2, 0, 0)
 
@@ -50,7 +50,7 @@ def main():
         knorr.header.stamp = now
         knorr.header.frame_id = camera.header.frame_id
         knorr.child_frame_id = 'tag_0'
-        knorr.transform.translation.x = 0.6
+        knorr.transform.translation.x = 0.4
         knorr.transform.translation.y = 1.24
         knorr.transform.translation.z = 0.2
         knorr.transform.rotation.x = quaternion0[0]
@@ -62,9 +62,9 @@ def main():
         cup.header.stamp = now
         cup.header.frame_id = camera.header.frame_id
         cup.child_frame_id = 'tag_1'
-        cup.transform.translation.x = 1.0
+        cup.transform.translation.x = 0.35
         cup.transform.translation.y = 1.21
-        cup.transform.translation.z = -0.2
+        cup.transform.translation.z = -0.4
         cup.transform.rotation.x = quaternion2[0]
         cup.transform.rotation.y = quaternion2[1]
         cup.transform.rotation.z = quaternion2[2]
@@ -86,7 +86,7 @@ def main():
         mondamin.header.stamp = now
         mondamin.header.frame_id = camera.header.frame_id
         mondamin.child_frame_id = 'tag_5'
-        mondamin.transform.translation.x = 0.6
+        mondamin.transform.translation.x = 0.5
         mondamin.transform.translation.y = 1.22
         mondamin.transform.translation.z = -0.13
         mondamin.transform.rotation.x = quaternion1[0]
@@ -121,7 +121,7 @@ def main():
         br.sendTransform(knorr)
         br.sendTransform(cup)
         #br.sendTransform(bowl)
-        #br.sendTransform(mondamin)
+        br.sendTransform(mondamin)
         br.sendTransform(camera)
         br.sendTransform(odom)
 
