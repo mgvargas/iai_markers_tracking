@@ -110,7 +110,6 @@ class SelectGoal:
             elif x == 'odom_z_joint':
                 self.odom_joints['odom_z_joint'] = self.joint_values[i]
 
-
     def arms_chain(self):
         self.get_urdf()
         self.right_chain = self.kinem_chain(self.grip_right)
@@ -145,7 +144,8 @@ class SelectGoal:
                     self.grasping_poses_service(obj)
                     found = True
             if not found:
-                self.grasping_poses_service(self.object_list[0])
+                pass
+                # self.grasping_poses_service(self.object_list[0])
         self.old_list = self.object_list
         return self.grasping_poses
 
@@ -352,9 +352,12 @@ class SelectGoal:
                 jac_t[j, i] = jac[i, j]
 
         # Manipulability = sqrt of determinant of jacobian*jacobian_transposed
-        manip = math.sqrt(np.linalg.det(np.dot(jac, jac_t)))
-
-        return manip
+        try:
+            manip = math.sqrt(np.linalg.det(np.dot(jac, jac_t)))
+            return manip
+        except ValueError:
+            rospy.logerr("No TF found, can't calculate manipulability")
+            return -1
 
     def yaml_writer(self):
         # Write a YAML file with the parameters for the simulated controller
@@ -413,7 +416,8 @@ class SelectGoal:
     def goal_pose_tf(self,pose):
         # Get TF between base and object's grasping pose
         try:
-            goal_pose = self.tfBuffer.lookup_transform(self.frame_base, pose, rospy.Time(0), rospy.Duration(1, 5e8))
+            # goal_pose = self.tfBuffer.lookup_transform(self.frame_base, pose, rospy.Time(0), rospy.Duration(1, 5e8))
+            goal_pose = self.tfBuffer.lookup_transform('odom', pose, rospy.Time(0), rospy.Duration(1, 5e8))
 
         except (tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException, tf2_ros.LookupException) as exc:
             rospy.logerr('No TF found between base and object. ', exc)
@@ -430,7 +434,7 @@ class SelectGoal:
                 limit_diff_left[n] = abs(self.left_joint_limits[1][n]) - abs(self.left_jnt_pos[n])
                 if limit_diff_left[n] < 0.0001:
                     limit_warning = True
-                    rospy.logwarn('left_arm_joint_{} is close to or outside joint limits'.format(n))
+                    rospy.logwarn('left_arm_joint_{} is close to joint limits'.format(n))
             min_dist_to_limit_left = min(d for d in limit_diff_left)
         else:
             limit_diff_right = [0] * len(self.right_joint_limits[1])
@@ -438,7 +442,7 @@ class SelectGoal:
                 limit_diff_right[n] = abs(self.right_joint_limits[1][n]) - abs(self.right_jnt_pos[n])
                 if limit_diff_right[n] < 0.0001:
                     limit_warning = True
-                    rospy.logwarn('right_arm_joint_{} is close to or outside joint limits'.format(n))
+                    rospy.logwarn('right_arm_joint_{} is close to joint limits'.format(n))
             min_dist_to_limit_right = min(d for d in limit_diff_right)
 
     # TODO: Finish this action, test it
@@ -449,11 +453,37 @@ class SelectGoal:
             goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='left')
         else:
             goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='right')
-
         self.gp_action.send_goal(goal)
-        self.gp_action.wait_for_result(rospy.Duration.from_sec(0.5))
-        print 'Action Result: ', self.gp_action.get_result()
 
+        # print 'Action Feedback: ',self.gp_action.feedback_cb
+        state_string = self.to_string()
+        state = state_string[self.gp_action.get_state()]
+        print 'Action State:    ',state
+        wait = self.gp_action.wait_for_result(rospy.Duration.from_sec(20))
+        if wait:
+            action_result = self.gp_action.get_result()
+            state = state_string[self.gp_action.get_state()]
+            rospy.loginfo('Action Result: Trajectory generated.')
+            rospy.loginfo('Action state: %s.'%state)
+        else:
+            rospy.loginfo('Action did not finish before the time out.')
+            action_result = self.gp_action.get_result()
+        return action_result
+
+    @staticmethod
+    def to_string():
+        state = {
+            0: 'PENDING',
+            1: 'ACTIVE',
+            2: 'PREEMPTED',
+            3: 'SUCCEEDED',
+            4: 'ABORTED',
+            5: 'REJECTED',
+            6: 'PREEMPTING',
+            7: 'RECALLING',
+            8: 'RECALLED',
+            9: 'LOST'}
+        return state
 
 def main():
     c_goal = SelectGoal()

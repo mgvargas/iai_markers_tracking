@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1
+        - /MarkerArray2/Namespaces1
       Splitter Ratio: 0.5
     Tree Height: 463
   - Class: rviz/Selection
@@ -838,6 +839,44 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /eef_trajectory_marker_array
+      Name: MarkerArray
+      Namespaces:
+        cup: true
+        cup_gp1: true
+        cup_gp1_f1: true
+        cup_gp1_f2: true
+        cup_gp2: true
+        cup_gp2_f1: true
+        cup_gp2_f2: true
+        cup_gp3: true
+        cup_gp3_f1: true
+        cup_gp3_f2: true
+        kitchen_table: true
+        knorr_tomate: true
+        knorr_tomate_gp1: true
+        knorr_tomate_gp1_f1: true
+        knorr_tomate_gp1_f2: true
+        knorr_tomate_gp2: true
+        knorr_tomate_gp2_f1: true
+        knorr_tomate_gp2_f2: true
+        mondamin: true
+        mondamin_gp1: true
+        mondamin_gp1_f1: true
+        mondamin_gp1_f2: true
+        mondamin_gp2: true
+        mondamin_gp2_f1: true
+        mondamin_gp2_f2: true
+        mondamin_gp3: true
+        mondamin_gp3_f1: true
+        mondamin_gp3_f2: true
+        mondamin_gp4: true
+        mondamin_gp4_f1: true
+        mondamin_gp4_f2: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -869,17 +908,17 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.52058512
-        Y: 1.00092137
-        Z: 0.414409071
+        X: 0.420048475
+        Y: 1.07279706
+        Z: 0.735260427
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.340399504
+      Pitch: 0.285399556
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.2585969
+      Yaw: 5.13359547
     Saved: ~
 Window Geometry:
   Displays:
