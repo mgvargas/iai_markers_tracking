@@ -220,7 +220,7 @@ class ObjectGraspingMarker:
                 finger1.pose.orientation.x = 0.0
                 finger1.pose.orientation.y = 0.0
                 finger1.pose.orientation.z = 0.0
-                finger1.pose.orientation.w = 1.0
+                finger1.pose.orientation.w = 0.1
                 finger2 = copy.deepcopy(finger1)
                 finger2.pose.position.x = (self.yaml_file[k]['gripper_opening']) / 2
                 finger2.pose.position.y = 0.005
@@ -259,10 +259,10 @@ class ObjectGraspingMarker:
                 static_tf.transform.translation.x = x
                 static_tf.transform.translation.y = y
                 static_tf.transform.translation.z = z
-                static_tf.transform.rotation.w = orien[0]
-                static_tf.transform.rotation.x = orien[1]
-                static_tf.transform.rotation.y = orien[2]
-                static_tf.transform.rotation.z = orien[3]
+                static_tf.transform.rotation.x = orien[0]
+                static_tf.transform.rotation.y = orien[1]
+                static_tf.transform.rotation.z = orien[2]
+                static_tf.transform.rotation.w = orien[3]
                 
                 self.s_br.sendTransform(static_tf)
 
@@ -302,7 +302,7 @@ class ObjectGraspingMarker:
         table.pose.orientation.w = quaternion[3]
         table.scale.x = table.scale.y = table.scale.z = 1.0
         table.color.r = table.color.g = 0.2
-        table.color.b = 0.3
+        table.color.b = 0.25
         table.color.a = 1.0
         return table
 
