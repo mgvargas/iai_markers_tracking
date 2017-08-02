@@ -39,7 +39,7 @@ def main():
         camera_pub.publish(camera)
 
         quaternion0 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(85), math.radians(0))
-        quaternion1 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(0), math.radians(0))
+        quaternion1 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(90), math.radians(0))
         quaternion2 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(85), 0)
         quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-14), math.radians(-15), 0)
         quaternion4 = tf.transformations.quaternion_from_euler(-math.pi/2, 0, 0)
