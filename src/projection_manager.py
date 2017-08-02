@@ -27,7 +27,7 @@ import PyKDL as kdl
 import actionlib
 from urdf_parser_py import urdf
 from iai_markers_tracking.msg import Object
-from iai_markers_tracking.msg import MoveToGPAction, MoveToGPGoal
+from iai_markers_tracking.msg import MoveToGPAction, MoveToGPGoal, MoveToGPFeedback
 from iai_markers_tracking.srv import GetObjectInfo
 from sensor_msgs.msg import JointState
 from urdf_parser_py.urdf import URDF
@@ -448,27 +448,39 @@ class SelectGoal:
     # TODO: Finish this action, test it
     def call_gp_action(self):
         self.gp_action.wait_for_server()
+        self.feedback = MoveToGPFeedback()
 
         if self.left_arm:
             goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='left')
         else:
             goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='right')
-        self.gp_action.send_goal(goal)
+        self.gp_action.send_goal(goal, feedback_cb=self.action_feedback_cb)
 
         # print 'Action Feedback: ',self.gp_action.feedback_cb
         state_string = self.to_string()
         state = state_string[self.gp_action.get_state()]
-        print 'Action State:    ',state
-        wait = self.gp_action.wait_for_result(rospy.Duration.from_sec(20))
+        rospy.loginfo('Action Initial State: {}.'.format(state))
+
+        wait = self.gp_action.wait_for_result(rospy.Duration.from_sec(5))
         if wait:
             action_result = self.gp_action.get_result()
             state = state_string[self.gp_action.get_state()]
             rospy.loginfo('Action Result: Trajectory generated.')
-            rospy.loginfo('Action state: %s.'%state)
+            rospy.loginfo('Action state: {}.'.format(state))
+            # print '------- Printing Trajectory!!\n',action_result
         else:
-            rospy.loginfo('Action did not finish before the time out.')
+            self.gp_action.cancel_goal()
+            self.gp_action.cancel_all_goals()
+            rospy.loginfo('Action did not finish before the time out. Cancelling goal.')
+            state = state_string[self.gp_action.get_state()]
+            rospy.loginfo('Action state: {}. \n \n'.format(state))
             action_result = self.gp_action.get_result()
         return action_result
+
+    def action_feedback_cb(self, msg):
+        rospy.loginfo('Action Feedback: {}'.format(msg.sim_status))
+        partial_trajectory = msg.sim_trajectory
+        # print partial_trajectory
 
     @staticmethod
     def to_string():
@@ -503,8 +515,9 @@ def main():
         c_goal.dist_to_joint_limits(arm)
 
         c_goal.call_gp_action()
+        break
 
-    rospy.spin()
+    #rospy.spin()
 
 
 if __name__ == '__main__':
