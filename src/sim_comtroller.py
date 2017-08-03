@@ -72,14 +72,7 @@ class MoveToGPServer:
         print 'Ready'
 
         # Wait until goal is received
-        while True:
-            print 'here'
-            self.finished = self.generate_trajectory()
-            if self.finished:
-                break
-            rospy.sleep(0.2)
-
-        rospy.spin()
+        rospy.Timer(rospy.Duration(0.1), self.generate_trajectory)
 
     def joint_callback(self, data):
         # Save current joint state
@@ -129,7 +122,6 @@ class MoveToGPServer:
 
     def action_callback(self, cb):
         # Received goal flags
-        self.finished = False
         self.goal_received = True
         self.active_goal_flag = True
         self.action_status.status = 1
@@ -148,6 +140,7 @@ class MoveToGPServer:
 
     def cancel_cb(self, cb):
         self.active_goal_flag = False
+        self.goal_received = False
         self.action_server.internal_cancel_callback(goal_id=self.goal_id)
         self.action_status.status = 4
         self.success = False
@@ -162,7 +155,7 @@ class MoveToGPServer:
         except (OSError, LookupError) as error:
             rospy.logerr("Unexpected error while reading URDF:"), sys.exc_info()[0]
 
-    def generate_trajectory(self):
+    def generate_trajectory(self, time):
         if self.goal_received:
             self.get_urdf()
             self.qpoases_config()
@@ -174,7 +167,7 @@ class MoveToGPServer:
                 rospy.loginfo('Action %s: Succeeded' % self._action_name)
                 self.action_status.status = 3
                 self.action_server.publish_result(self.action_status, self._result)
-            return True
+        return 0
 
     def qpoases_config(self):
         # QPOases needs as config parameters:
@@ -384,7 +377,7 @@ class MoveToGPServer:
 
             print '\n iter: ', i
             toc = rospy.get_rostime()
-            print toc.nsecs-tic.nsecs, 'nsec Elapsed'
+            print (toc.nsecs-tic.nsecs)/10e9, 'sec Elapsed'
             '''print 'joint_vel: ', Opt[:-6]
             print 'slack    : ', Opt[-6:]
             print 'Goal orient: ', self.goal_orient
@@ -397,7 +390,6 @@ class MoveToGPServer:
         eef_pose_array.header.frame_id = self.gripper
         self.pub_plot.publish(eef_pose_array)
 
-        #rospy.sleep(5)
         return 0
 
     def kinem_chain(self, name_frame_end, name_frame_base='odom'):
@@ -598,10 +590,16 @@ class MoveToGPServer:
         # print '--- Slack weight: [%.2f, %.2f]'%(self.sweights[0],self.sweights[3])
 
 
-if __name__ == '__main__':
+def main():
     try:
         rospy.init_node('move_to_gp_server')
         rate = rospy.Rate(200)
-        MoveToGPServer()
+        a = MoveToGPServer()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass
+
+
+
+if __name__ == '__main__':
+    main()

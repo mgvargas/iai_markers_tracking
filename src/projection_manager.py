@@ -25,6 +25,7 @@ import yaml
 import numpy as np
 import PyKDL as kdl
 import actionlib
+import reset_naive_sim
 from urdf_parser_py import urdf
 from iai_markers_tracking.msg import Object
 from iai_markers_tracking.msg import MoveToGPAction, MoveToGPGoal, MoveToGPFeedback
@@ -445,10 +446,8 @@ class SelectGoal:
                     rospy.logwarn('right_arm_joint_{} is close to joint limits'.format(n))
             min_dist_to_limit_right = min(d for d in limit_diff_right)
 
-    # TODO: Finish this action, test it
     def call_gp_action(self):
         self.gp_action.wait_for_server()
-        self.feedback = MoveToGPFeedback()
 
         if self.left_arm:
             goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='left')
@@ -456,13 +455,13 @@ class SelectGoal:
             goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='right')
         self.gp_action.send_goal(goal, feedback_cb=self.action_feedback_cb)
 
-        # print 'Action Feedback: ',self.gp_action.feedback_cb
         state_string = self.to_string()
         state = state_string[self.gp_action.get_state()]
         rospy.loginfo('Action Initial State: {}.'.format(state))
 
-        wait = self.gp_action.wait_for_result(rospy.Duration.from_sec(5))
-        if wait:
+        wait_for_result = self.gp_action.wait_for_result(rospy.Duration.from_sec(2))
+
+        if wait_for_result:
             action_result = self.gp_action.get_result()
             state = state_string[self.gp_action.get_state()]
             rospy.loginfo('Action Result: Trajectory generated.')
@@ -472,9 +471,10 @@ class SelectGoal:
             self.gp_action.cancel_goal()
             self.gp_action.cancel_all_goals()
             rospy.loginfo('Action did not finish before the time out. Cancelling goal.')
+            action_result = self.gp_action.get_result()
+            rospy.sleep(0.01)
             state = state_string[self.gp_action.get_state()]
             rospy.loginfo('Action state: {}. \n \n'.format(state))
-            action_result = self.gp_action.get_result()
         return action_result
 
     def action_feedback_cb(self, msg):
@@ -514,7 +514,13 @@ def main():
         # Distance to joint limits
         c_goal.dist_to_joint_limits(arm)
 
-        c_goal.call_gp_action()
+        trajectory = c_goal.call_gp_action()
+        reset_naive_sim.reset_simulator()
+
+        '''trajectories = []
+        for x in range(3):
+            trajectories.append(c_goal.call_gp_action())'''
+
         break
 
     #rospy.spin()
