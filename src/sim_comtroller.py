@@ -65,7 +65,7 @@ class MoveToGPServer:
         self.joint_values_kdl = kdl.JntArray(self.nJoints)
         self.eef_pose = kdl.Frame()
         # TODO: find appropriate max acceleration
-        self.accel_max = np.array([0.1, 0.1, 0.1, 0.05, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02])
+        self.accel_max = np.array([0.3, 0.3, 0.3, 0.01, 0.64, 0.64, 0.75, 0.75, 0.75, 1.05, 1.05])
 
         rospy.Subscriber('/joint_states', JointState, self.joint_callback)
         self.pub_clock = rospy.Publisher('/simulator/projection_clock', ProjectionClock, queue_size=3)
@@ -163,9 +163,9 @@ class MoveToGPServer:
         if self.goal_received:
             self.get_urdf()
             self.qpoases_config()
+            np.set_printoptions(suppress=True, precision=2, linewidth=180)
             self.qpoases_calculation()
 
-            np.set_printoptions(suppress=True, precision=2, linewidth=120)
             if self.success:
                 self._result.trajectory = self._feedback.sim_trajectory
                 rospy.loginfo('Action %s: Succeeded' % self._action_name)
@@ -186,10 +186,10 @@ class MoveToGPServer:
         np.set_printoptions(suppress=True, precision=3, linewidth=120)
 
         # Variables
-        slack_limit = 300
+        slack_limit = 400
         self.n_slack = 6
         self.prop_gain = 3
-        self.prop_gain_orient = 1.2
+        self.prop_gain_orient = 3
         self.sweights = np.ones((self.n_slack))*4
 
         # Joint limits: self.joint_limits_upper, self.joint_limits_lower
@@ -201,6 +201,7 @@ class MoveToGPServer:
         [ac_lim_lower, ac_lim_upper] = self.acceleration_limits(joint_velocity)
 
         # Error in EEF orientation, if error in Z > 180 deg, rotate goal 180 deg
+        self.calc_eef_position(self.joint_values)
         self.goal_quat = np.array([self.goal_pose.transform.rotation.x, self.goal_pose.transform.rotation.y,
                          self.goal_pose.transform.rotation.z, self.goal_pose.transform.rotation.w])
         self.goal_orient = self.quaternion_to_euler(self.goal_quat)
@@ -218,16 +219,16 @@ class MoveToGPServer:
         self.error_posit = (self.goal_posit - eef_posit) * self.prop_gain
 
         # Get jacobian
-        jacobian = self.get_jacobian()
+        self.jacobian = self.get_jacobian()
 
         # Create matrix A, one slack factor per DOF of the EEF
-        A_goal = np.hstack((jacobian, np.eye(self.n_slack)))
+        A_goal = np.hstack((self.jacobian, np.eye(self.n_slack)))
         A_joint_lim = np.hstack((np.eye(self.nJoints), np.zeros((self.nJoints, self.n_slack))))
         A_accel_lim = np.hstack((np.eye(self.nJoints), np.zeros((self.nJoints, self.n_slack))))
         self.A = np.concatenate((A_goal, A_joint_lim, A_accel_lim), axis=0)
         # self.A = np.concatenate((A_goal, A_joint_lim), axis=0)
         self.problem_size = np.shape(self.A)
-        print 'A ', np.shape(self.A), '\n',self.A
+        # print 'A ', np.shape(self.A), '\n',self.A
 
         # Boundary vectors of A
         self.joint_dist_lower_lim = np.empty([self.nJoints])
@@ -309,7 +310,7 @@ class MoveToGPServer:
 
             # Solve QP, redifine limit vectors of A.
             eef_pose_msg = Pose()
-            nWSR = np.array([100])
+            nWSR = np.array([150])
             [ac_lim_lower, ac_lim_upper] = self.acceleration_limits(Opt)
             self.joint_dist_lower_lim = self.joint_limits_lower - self.joint_values
             self.joint_dist_upper_lim = self.joint_limits_upper - self.joint_values
@@ -332,30 +333,29 @@ class MoveToGPServer:
 
             for x,vel in enumerate(Opt[4:(self.nJoints)]):
                 velocity_msg.velocity[self.start_arm[x]] = vel
-            # if Opt[3] * self.error_posit[2] < 0:
-             #   velocity_msg.velocity[self.triang_list_pos] = -Opt[3]
-            #else:
+
             velocity_msg.velocity[self.triang_list_pos] = Opt[3]
             velocity_msg.velocity[0] = Opt[0]
             velocity_msg.velocity[1] = Opt[1]
 
             # Recalculate Error in EEF position
+            self.calc_eef_position(self.joint_values)
             eef_posit = np.array([self.eef_pose.p[0], self.eef_pose.p[1], self.eef_pose.p[2]])
             self.error_posit = (self.goal_posit - eef_posit)*self.prop_gain
             limit_p = abs(self.error_posit/self.prop_gain)
 
             # Recalculate Error in EEF orientation
             eef_orient_quat = self.rotation_to_quaternion(self.eef_pose.M)
+            q_interp = quaternion_slerp(eef_orient_quat, self.goal_quat, 0.3)
             if limit_p[2] >= 0.12:
                 self.error_orient = np.array([0.0, 0.0, 0.0])
+                limit_o = self.error_orient/self.prop_gain_orient
             else:
-                # q_interp = self.slerp(eef_orient_quat, self.goal_quat, t=0.5)
                 q_interp = quaternion_slerp(eef_orient_quat, self.goal_quat, 0.3)
-                # orient_error = self.quaternion_to_euler(q_interp) - self.quaternion_to_euler(eef_orient_quat)
-                orient_error = self.quaternion_to_euler(q_interp)
+                orient_error = self.quaternion_to_euler(q_interp) - self.quaternion_to_euler(eef_orient_quat)
+                # orient_error = self.quaternion_to_euler(q_interp)
                 self.error_orient = orient_error * self.prop_gain_orient
-
-            limit_o = self.error_orient/self.prop_gain_orient
+                limit_o = abs(self.goal_orient - self.quaternion_to_euler(q_interp))
 
             # Print velocity for iai_naive_kinematics_sim
             velocity_msg.header.stamp = rospy.get_rostime()
@@ -371,7 +371,6 @@ class MoveToGPServer:
             self.action_server.publish_status()
 
             # Store EEF pose for plotting
-            self.calc_eef_position(self.joint_values)
             eef_pose_msg.position.x = self.eef_pose.p[0]
             eef_pose_msg.position.y = self.eef_pose.p[1]
             eef_pose_msg.position.z = self.eef_pose.p[2]
@@ -391,7 +390,9 @@ class MoveToGPServer:
                 if x < 3:
                     error[x] = np.hstack((error[x], self.lbA[x]/self.prop_gain))
                 else:
-                    error[x] = np.hstack((error[x], self.lbA[x]/self.prop_gain_orient))
+                    # error[x] = np.hstack((error[x], self.lbA[x]/self.prop_gain_orient))
+                    e = self.goal_orient - self.quaternion_to_euler(eef_orient_quat)
+                    error[x] = np.hstack((error[x], e[x-3]))
             base_weight = np.hstack((base_weight, self.jweights[0, 0]))
             arm_weight = np.hstack((arm_weight, self.jweights[4, 4]))
             triang_weight = np.hstack((triang_weight, self.jweights[3, 3]))
@@ -408,9 +409,15 @@ class MoveToGPServer:
             # print (toc.nsecs-tic.nsecs)/10e9, 'sec Elapsed'
             # print 'joint_vel: ', Opt[:-6]
             # print 'slack    : ', Opt[-6:]
-            print 'eef_ori:   ', self.quaternion_to_euler(eef_orient_quat)
+            '''print 'eef_ori:   ', self.quaternion_to_euler(eef_orient_quat)
             print 'ori error: ', self.error_orient/self.prop_gain_orient
-            print 'goal_ori:  ', self.goal_orient
+            # print 'ori error: ', self.goal_orient - self.quaternion_to_euler(eef_orient_quat)
+            print 'goal_ori:  ', self.goal_orient'''
+            print '\neef error:  ', eef_posit
+            print 'pos error:  ', self.error_posit/self.prop_gain
+            print 'goal error: ', self.goal_posit
+            '''print 'lbA ', np.shape(self.lbA), '\n', self.lbA[6:]
+            print 'ubA ', np.shape(self.ubA), '\n',self.ubA[6:]'''
 
         eef_pose_array.header.stamp = rospy.get_rostime()
         eef_pose_array.header.frame_id = self.gripper
@@ -476,7 +483,7 @@ class MoveToGPServer:
             rospy.logerr('Action %s aborted due to time out' % self._action_name)
         else:
             self.action_status.text = 'QP infeasibility problem.'
-            rospy.logerr('Action %s aborted due to time infeasibility' % self._action_name)
+            rospy.logerr('Action %s aborted due to infeasibility of QP problem' % self._action_name)
         self.action_server.publish_status()
         self._result.trajectory = self._feedback.sim_trajectory
         self.action_server.publish_result(self.action_status, self._result)
@@ -579,35 +586,6 @@ class MoveToGPServer:
         yaw = math.atan2(t3, t4)
         return np.array([roll, pitch, yaw])
 
-    '''def slerp(self, q0, q1, t=1.0):
-        # Interpolation between 2 quaternions, from 0 <= t <= 1
-        dot_threshold = 0.9995
-        q0_a = np.array(q0)
-        q0_norm = self.normalize_quat(q0)
-        q1_norm = self.normalize_quat(q1)
-        dot = q0_norm[0]*q1_norm[0] + q0_norm[1]*q1_norm[1] + q0_norm[2]*q1_norm[2] + q0_norm[3]*q1_norm[3]
-
-        # if quaternions are too close, do linear interpolation
-        if abs(dot)>dot_threshold:
-            q_slerp = q0_norm + t*(q1_norm-q0_norm)
-            return [q_slerp[0], q_slerp[1], q_slerp[2], q_slerp[3]]
-        # if slerp wants to take the long path (>180 deg), change it
-        if dot < 0.0:
-            q1_norm = -q1_norm
-            dot = -dot
-        theta = (math.acos(dot))*t
-        q0_dot = q0_norm*dot
-        q2 = q1_norm - q0_dot
-        q2_norm = self.normalize_quat(q2)
-        q_slerp = q0_a*math.sin(theta) + q2_norm*math.sin(theta)
-        return [q_slerp[0], q_slerp[1], q_slerp[2], q_slerp[3]]
-
-    @staticmethod
-    def normalize_quat(q):
-        norm = math.sqrt(q[0]**2 + q[1]**2 + q[2]**2 + q[3]**2)
-        q_norm = [x / norm for x in q]
-        return np.array(q_norm)'''
-
     def get_jacobian(self):
         # Obtain jacobian for the selected arm
         self.jac_solver = kdl.ChainJntToJacSolver(self.chain)
@@ -624,19 +602,16 @@ class MoveToGPServer:
 
     def calculate_weigths(self):
         # Weight of an active/inactive joint
-        active_joint = 1e-2
+        active_joint = 1e-3
         inactive_joint = 10
         # Weights of the slack vector
-        self.sweights[:] = 6
-        # Base active
-        self.A[0, 0] = 1
-        self.A[1, 1] = 1
-        self.A[0, 2] = 0
-        self.A[1, 2] = 0
+        self.sweights[:] = 1
+
         # Distance range of changing weight values
-        a, b = 0.4, 0.9
+        a, b = 0.4, 0.7
         w_len = len(np.diag(self.jweights))
         jweights = np.ones(w_len)
+        size_jac = np.shape(self.jacobian)
 
         # Find bigger distance to goal (x or y)
         dist = max(abs(self.error_posit[0]), abs(self.error_posit[1]))
@@ -652,35 +627,54 @@ class MoveToGPServer:
             if abs(self.error_posit[1]) > b:
                 jweights[1] = active_joint
                 self.sweights[1] = inactive_joint
+            # Arm not active
+            for x in range(size_jac[0]):
+                for y in range(size_jac[1]):
+                    self.A[x,y] = 0
+            # Base active
+            self.A[0, 0] = 1
+            self.A[1, 1] = 1
 
         # Weights will go from 0.01 to 1, depending on the distance to the goal
         elif a < dist < b:
-            # print 'middle'
+            print 'middle'
+            for x in range(size_jac[0]):
+                for y in range(size_jac[1]):
+                    self.A[x, y] = self.jacobian[x, y]
             self.A[0, 0] = 0.5
             self.A[1, 1] = 0.5
             # Base joints will have lower weights when far from the goal
             for n,w in enumerate(jweights):
                 new_w = (inactive_joint - active_joint)*(dist - a)/(b - a) + active_joint
                 jweights[n] = new_w
-            jweights[0] = (active_joint -inactive_joint)*(dist - a)/(b - a) + inactive_joint
-            jweights[1] = (active_joint -inactive_joint)*(dist - a)/(b - a) + inactive_joint
+            jweights[0] = ((active_joint -inactive_joint)*(dist - a)/(b - a) + inactive_joint)*1.2
+            jweights[1] = ((active_joint -inactive_joint)*(dist - a)/(b - a) + inactive_joint)*1.2
 
         # if the robot is close to the goal
         else:
-            # print 'close'
-            jweights = np.ones(w_len)*active_joint*5
-            jweights[0] = inactive_joint
-            jweights[1] = inactive_joint
+            print 'close'
+            for x in range(size_jac[0]):
+                for y in range(size_jac[1]):
+                    self.A[x, y] = self.jacobian[x, y]
+
+            jweights = np.ones(w_len)*active_joint
+            jweights[0] = inactive_joint*1.3
+            jweights[1] = inactive_joint*1.3
             # Triangle base weight
             jweights[3] = (active_joint -inactive_joint)*(abs(self.error_posit[2]) - 0.0)/(0.6 - 0.0) + inactive_joint
-            self.sweights = np.ones(len(self.sweights))*inactive_joint
+            if jweights[3] < active_joint:
+                jweights[3] = active_joint
+            # self.sweights = np.ones(len(self.sweights))*inactive_joint/2
             self.A[0, 0] = 0.1
             self.A[1, 1] = 0.1
 
         jweights[2] = inactive_joint*10
+
+        # Reset matrix H
         self.jweights = np.diag(jweights)
         self.H = np.diag(np.hstack((np.diag(self.jweights), self.sweights)))
-        '''print '-- Base weight: [%.4f, %.4f] \n--  Triangle [%.4f] Arm weight: [%.4f]'\
+        '''print 'A: ', self.A[:size_jac[0],:size_jac[1]]
+        print '-- Base weight: [%.4f, %.4f] \n--  Triangle [%.4f] Arm weight: [%.4f]'\
               %(jweights[0], jweights[1], jweights[3], jweights[4])
         print '-- Slack weight: [%.2f, %.2f]'%(self.sweights[0], self.sweights[3])'''
 

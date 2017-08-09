@@ -119,11 +119,7 @@ class SelectGoal:
         self.left_joint_limits = [self.joint_limits_lower, self.joint_limits_upper]
 
     def get_urdf(self):
-        # Gets Boxy's URDF
-        # rospack = rospkg.RosPack()
-        # dir = rospack.get_path('iai_markers_tracking') + '/urdf/boxy_description.urdf'
         try:
-            # self.urdf_model = urdf.Robot.from_xml_file(dir)
             self.urdf_model = URDF.from_parameter_server()
         except (OSError, LookupError) as error:
             rospy.logerr('URDF not found in parameter server. ERROR',error)
@@ -454,36 +450,39 @@ class SelectGoal:
         else:
             goal = MoveToGPGoal(grasping_pose=self.goal_pose, arm='right')
         self.gp_action.send_goal(goal, feedback_cb=self.action_feedback_cb)
+        state_string = self.action_state_to_string()
 
-        state_string = self.to_string()
-        state = state_string[self.gp_action.get_state()]
-        rospy.loginfo('Action Initial State: {}.'.format(state))
-
-        wait_for_result = self.gp_action.wait_for_result(rospy.Duration.from_sec(2))
+        rospy.loginfo('Sending goal to MoveToGP Action.')
+        wait_for_result = self.gp_action.wait_for_result(rospy.Duration.from_sec(8))
 
         if wait_for_result:
-            action_result = self.gp_action.get_result()
+            rospy.sleep(0.05)
             state = state_string[self.gp_action.get_state()]
-            rospy.loginfo('Action Result: Trajectory generated.')
             rospy.loginfo('Action state: {}.'.format(state))
+            if state =='SUCCEEDED':
+                rospy.loginfo('Action Result: Trajectory generated.')
             # print '------- Printing Trajectory!!\n',action_result
         else:
-            self.gp_action.cancel_goal()
-            self.gp_action.cancel_all_goals()
-            rospy.loginfo('Action did not finish before the time out. Cancelling goal.')
-            action_result = self.gp_action.get_result()
-            rospy.sleep(0.01)
             state = state_string[self.gp_action.get_state()]
-            rospy.loginfo('Action state: {}. \n \n'.format(state))
-        return action_result
+            if state == 'ABORTED':
+                rospy.loginfo('Action state: {} by action server. \n'.format(state))
+            else:
+                self.gp_action.cancel_goal()
+                self.gp_action.cancel_all_goals()
+                rospy.loginfo('Action did not finish before the time out. Cancelling goal.')
+                rospy.sleep(0.05)
+                state = state_string[self.gp_action.get_state()]
+                rospy.loginfo('Action state: {}. \n'.format(state))
+        action_result = self.gp_action.get_result()
+        return action_result, state
 
     def action_feedback_cb(self, msg):
-        rospy.loginfo('Action Feedback: {}'.format(msg.sim_status))
+        #rospy.loginfo('Action Feedback: {}'.format(msg.sim_status))
         partial_trajectory = msg.sim_trajectory
         # print partial_trajectory
 
     @staticmethod
-    def to_string():
+    def action_state_to_string():
         state = {
             0: 'PENDING',
             1: 'ACTIVE',
@@ -514,7 +513,7 @@ def main():
         # Distance to joint limits
         c_goal.dist_to_joint_limits(arm)
 
-        trajectory = c_goal.call_gp_action()
+        trajectory, status = c_goal.call_gp_action()
         reset_naive_sim.reset_simulator()
 
         '''trajectories = []
