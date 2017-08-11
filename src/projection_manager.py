@@ -506,7 +506,7 @@ def trajectory_evaluation_service(trajectories):
         return selected_traj
     except rospy.ServiceException, e:
         rospy.logerr("Service 'Trajectory Evaluation' call failed: %s" % e)
-        return 0
+        return -1
 
 
 def main():
@@ -533,7 +533,9 @@ def main():
             trajectories.append(trajectory)
             reset_naive_sim.reset_simulator()
 
-        selected_trajectory = trajectory_evaluation_service(trajectories)
+        selected = trajectory_evaluation_service(trajectories)
+        selected_trajectory = trajectories[selected.selected_trajectory]
+        rospy.loginfo(selected)
 
         break
 

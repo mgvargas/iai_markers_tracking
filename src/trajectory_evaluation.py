@@ -21,7 +21,7 @@ import math
 import rospkg
 import sys
 import numpy as np
-from iai_markers_tracking.srv import TrajectoryEvaluation
+from iai_markers_tracking.srv import TrajectoryEvaluation, TrajectoryEvaluationResponse
 
 def velocity_change(traj):
     trajectory = traj.trajectory
@@ -48,6 +48,7 @@ def velocity_change(traj):
 
     return np.mean(acc_active),difference, i
 
+
 def acceleration_change(acceleration, iterat):
     joint_num = len(acceleration[0])
     jerk =  np.zeros(joint_num)
@@ -69,10 +70,13 @@ def acceleration_change(acceleration, iterat):
 
 
 def evaluation(traj):
+    # Variable definition
     num = len(traj.trajectories)
     acc_change = []
     vel_change = []
     length = []
+    grades = [0]*num
+
     # Calculate change in velocity, in acceleration and length of each trajectory
     for trajectory in traj.trajectories:
         vel, acc, l = velocity_change(trajectory)
@@ -84,12 +88,25 @@ def evaluation(traj):
     print 'acc_change: ',acc_change
     print 'len: ',length
 
+    min_vel = vel_change.index(min(vel_change))
+    min_acc = acc_change.index(min(acc_change))
+    min_length = length.index(min(length))
+    grades[min_vel] += 1
+    grades[min_acc] += 1
+    grades[min_length] += 1
+    selected_traj = grades.index(max(grades))
+
+    print selected_traj
+
+    return selected_traj
+    #return TrajectoryEvaluationResponse(selected_traj)
+
+
 def evaluate_traj():
     rospy.init_node('trajectory_evaluation_server')
     rospy.Service('trajectory_evaluation', TrajectoryEvaluation, evaluation)
     rospy.spin()
 
-    return 'hi'
 
 if __name__ == "__main__":
     evaluate_traj()
