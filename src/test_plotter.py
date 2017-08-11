@@ -31,7 +31,8 @@ from visualization_msgs.msg import MarkerArray
 
 class PlotTest:
 
-    def __init__(self):
+    def __init__(self, r=0.0, g=0.4, b=1.0):
+        self.r, self.g, self.b = r, g, b
         rospy.Subscriber('/data_to_plot', PoseArray, self.plot_callback)
         self.marker_pub = rospy.Publisher('eef_trajectory_marker_array', MarkerArray, queue_size=1)
         #self.marker_pub = rospy.Publisher('visualization_marker', MarkerArray, queue_size=1)
@@ -42,10 +43,10 @@ class PlotTest:
         if len(pose_array.poses) > 0:
             if self.flag == False:
                 self.write_bag(pose_array)
-                self.create_markers(pose_array)
+                self.create_markers(pose_array, self.r, self.g, self.b)
                 self.flag = True
 
-    def create_markers(self, pose_array):
+    def create_markers(self, pose_array, r, g, b):
         self.pose_array = pose_array
         markerArray = MarkerArray()
 
@@ -54,23 +55,23 @@ class PlotTest:
             marker.pose = pose
             marker.header.frame_id = "odom"
             marker.header.stamp = rospy.Time.now()
-            marker.id = n
+            marker.id = n*b*10
             marker.ns = "marker_" + str(n)
             marker.type = marker.CUBE
             marker.action = marker.ADD
             marker.scale.x = 0.03
             marker.scale.y = 0.03
             marker.scale.z = 0.03
-            marker.color.r = 0.0
-            marker.color.g = 0.4
-            marker.color.b = 1.0
+            marker.color.r = r
+            marker.color.g = g
+            marker.color.b = b
             marker.color.a = 1.0
 
             markerArray.markers.append(marker)
 
         #self.yaml_writer(markerArray)
         self.marker_pub.publish(markerArray)
-        print 'published'
+        # print 'r, g, b', r, g, b
 
     @staticmethod
     def yaml_writer(markerArray):
@@ -102,14 +103,12 @@ class PlotTest:
             bag.close()
         return 0
 
-def main():
-    rospy.init_node('plot_eef_trajectory')
-    rate = rospy.Rate(200)
-    print 'hi'
-    PlotTest()
+def main(r=0.0, g=0.4, b=1.0):
+    print 'plotting trajectory'
+    PlotTest(r, g, b)
     #play_bag()
 
-    rospy.spin()
+    return 0
 
 
 def play_bag():
@@ -125,6 +124,8 @@ def play_bag():
 
 if __name__ == '__main__':
     try:
+        rospy.init_node('plot_eef_trajectory')
+        rate = rospy.Rate(200)
         main()
     except rospy.ROSInterruptException:
         pass
