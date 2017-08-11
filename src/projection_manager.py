@@ -26,10 +26,10 @@ import numpy as np
 import PyKDL as kdl
 import actionlib
 import reset_naive_sim
-from urdf_parser_py import urdf
+import test_plotter
 from iai_markers_tracking.msg import Object
 from iai_markers_tracking.msg import MoveToGPAction, MoveToGPGoal, MoveToGPFeedback
-from iai_markers_tracking.srv import GetObjectInfo
+from iai_markers_tracking.srv import GetObjectInfo, TrajectoryEvaluation
 from sensor_msgs.msg import JointState
 from urdf_parser_py.urdf import URDF
 from kdl_parser import kdl_tree_from_urdf_model
@@ -496,6 +496,19 @@ class SelectGoal:
             9: 'LOST'}
         return state
 
+
+def trajectory_evaluation_service(trajectories):
+    # Calling a service that evaluates obtained trajectories and selects the best one
+    rospy.wait_for_service('trajectory_evaluation')
+    try:
+        evaluate = rospy.ServiceProxy('trajectory_evaluation', TrajectoryEvaluation)
+        selected_traj = evaluate(trajectories)
+        return selected_traj
+    except rospy.ServiceException, e:
+        rospy.logerr("Service 'Trajectory Evaluation' call failed: %s" % e)
+        return 0
+
+
 def main():
     c_goal = SelectGoal()
 
@@ -513,12 +526,14 @@ def main():
         # Distance to joint limits
         c_goal.dist_to_joint_limits(arm)
 
-        trajectory, status = c_goal.call_gp_action()
-        reset_naive_sim.reset_simulator()
+        trajectories = []
+        for x in range(2):
+            test_plotter.main(x / 6.0 + 0.2, x / 3.0 + 0.1, x / 4.0 + 0.3)
+            trajectory, status = c_goal.call_gp_action()
+            trajectories.append(trajectory)
+            reset_naive_sim.reset_simulator()
 
-        '''trajectories = []
-        for x in range(3):
-            trajectories.append(c_goal.call_gp_action())'''
+        selected_trajectory = trajectory_evaluation_service(trajectories)
 
         break
 

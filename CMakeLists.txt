@@ -51,12 +51,14 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Object.msg
+  Trajectory.msg
 )
 
 # Generate services in the 'srv' folder
  add_service_files(
    FILES
    GetObjectInfo.srv
+   TrajectoryEvaluation.srv
 #   Service2.srv
  )
 
@@ -135,7 +137,7 @@ include_directories(
 
 ## Declare a C++ executable
 # add_executable(iai_markers_tracking_node src/iai_markers_tracking_node.cpp)
-add_executable(basic_shapes src/basic_shapes.cpp)
+add_executable(basic_shapes others/basic_shapes.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -195,7 +197,7 @@ target_link_libraries(basic_shapes ${catkin_LIBRARIES})
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(points_and_lines src/points_and_lines.cpp)
+add_executable(points_and_lines others/points_and_lines.cpp)
 target_link_libraries(points_and_lines ${catkin_LIBRARIES})
 #add_executable(object_w_markers src/pub_object_markers.cpp)
 #target_link_libraries(pub_object_markers ${catkin_LIBRARIES})
