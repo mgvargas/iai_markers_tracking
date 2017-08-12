@@ -41,8 +41,8 @@ class PlotTest:
     def plot_callback(self, pose_array):
         #self.pose_array = pose_array
         if len(pose_array.poses) > 0:
-            if self.flag == False:
-                self.write_bag(pose_array)
+            if not self.flag:
+                # self.write_bag(pose_array)
                 self.create_markers(pose_array, self.r, self.g, self.b)
                 self.flag = True
 

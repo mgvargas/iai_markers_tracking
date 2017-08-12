@@ -17,11 +17,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import rospy
-import math
-import rospkg
-import sys
 import numpy as np
-from iai_markers_tracking.srv import TrajectoryEvaluation, TrajectoryEvaluationResponse
+from iai_markers_tracking.srv import TrajectoryEvaluation
 
 def velocity_change(traj):
     trajectory = traj.trajectory
@@ -93,13 +90,10 @@ def evaluation(traj):
     min_length = length.index(min(length))
     grades[min_vel] += 1
     grades[min_acc] += 1
-    grades[min_length] += 1
+    grades[min_length] += 1.5
     selected_traj = grades.index(max(grades))
 
-    print selected_traj
-
     return selected_traj
-    #return TrajectoryEvaluationResponse(selected_traj)
 
 
 def evaluate_traj():
