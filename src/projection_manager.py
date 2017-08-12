@@ -27,8 +27,9 @@ import PyKDL as kdl
 import actionlib
 import reset_naive_sim
 import test_plotter
-from iai_markers_tracking.msg import Object
-from iai_markers_tracking.msg import MoveToGPAction, MoveToGPGoal, MoveToGPFeedback
+from actionlib_msgs.msg import GoalStatus
+from iai_markers_tracking.msg import ProjectedGraspingAction, ProjectedGraspingResult, ProjectedGraspingFeedback
+from iai_markers_tracking.msg import Object, MoveToGPAction, MoveToGPGoal
 from iai_markers_tracking.srv import GetObjectInfo, TrajectoryEvaluation
 from sensor_msgs.msg import JointState
 from urdf_parser_py.urdf import URDF
@@ -37,8 +38,7 @@ from kdl_parser import kdl_tree_from_urdf_model
 
 class SelectGoal:
     def __init__(self):
-        rospy.init_node('goal_selector', anonymous=True)
-        rate = rospy.Rate(2)
+        # Subscriptions
         self.objects = rospy.Subscriber('/found_objects', Object, self.callback_obj)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
@@ -76,7 +76,7 @@ class SelectGoal:
         self.jac_solver_right = kdl.ChainJntToJacSolver(self.right_chain)
 
         self.joint_list = rospy.Subscriber('/joint_states', JointState, self.joint_callback)
-        rospy.sleep(0.5)
+        rospy.sleep(0.01)
 
     def callback_obj(self, objects):
         # Gets a list of the objects found by the robot (published in '/detected_objects')
@@ -131,7 +131,7 @@ class SelectGoal:
             self.gp_weights = np.zeros(len(self.grasping_poses))
 
     # TODO: Change to a smarter selector (from a ROS Topic maybe)
-    def object_selector(self):
+    def object_selector(self, object):
         # From the found objects, select one to grasp
         if self.old_list != self.object_list:
             found = False
@@ -274,9 +274,9 @@ class SelectGoal:
 
         return jacobian
 
-    def arm_selector(self):
+    def arm_selector(self, object):
         # Find closest grasping pose of a given object
-        self.object_selector()
+        self.object_selector(object)
         closest_pose = self.goal_by_distance()
 
         # Obtain manipulability of initial pose of arms
@@ -398,18 +398,6 @@ class SelectGoal:
             rospy.logerr("Unexpected error while writing controller configuration YAML file:"), sys.exc_info()[0]
             return -1
 
-    # Possibly remove it later
-    def eef_pos(self):
-        # Get pose of both EEF
-        l = kdl.Frame()
-        r = kdl.Frame()
-        fk_solver = kdl.ChainFkSolverPos_recursive(self.right_chain)
-        fk_solver.JntToCart(self.right_jnt_pos, r)
-        fk_solver_l = kdl.ChainFkSolverPos_recursive(self.left_chain)
-        fk_solver_l.JntToCart(self.left_jnt_pos, l)
-        # print '\n EEF_l: {} \n {} \n'.format(l.p, l.M)
-        # print '\n EEF_r: {} \n {} \n'.format(r.p, r.M)
-
     def goal_pose_tf(self,pose):
         # Get TF between base and object's grasping pose
         try:
@@ -477,7 +465,7 @@ class SelectGoal:
         return action_result, state
 
     def action_feedback_cb(self, msg):
-        #rospy.loginfo('Action Feedback: {}'.format(msg.sim_status))
+        rospy.loginfo('Action Feedback: {}'.format(msg.sim_status))
         partial_trajectory = msg.sim_trajectory
         # print partial_trajectory
 
@@ -497,6 +485,43 @@ class SelectGoal:
         return state
 
 
+class ProjectedGraspingServer:
+    def __init__(self):
+        self.feedback = ProjectedGraspingFeedback()
+        self.result = ProjectedGraspingResult()
+        self.goal_received = False
+        self.object_to_grasp = False
+        self.action_name = 'projected_grasping_server'
+        self.action_server = actionlib.ActionServer(self.action_name, ProjectedGraspingAction, self.action_callback,
+                                                    self.cancel_cb, auto_start=False)
+        self.action_server.start()
+        self.action_status = GoalStatus()
+
+    def action_callback(self, cb):
+        self.object_to_grasp = cb.goal.object
+        self.goal_received = True
+        self.goal_id = self.action_status.goal_id = cb.goal.goal_id
+        return self.object_to_grasp, self.goal_received
+
+    def cancel_cb(self, cb):
+        self.action_server.internal_cancel_callback(goal_id=self.goal_id)
+        self.action_status.status = 4
+        self.goal_received = False
+        self.action_server.publish_result(self.action_status, self.result)
+        self.action_server.publish_status()
+        return False, self.goal_received
+
+    def send_trajectory(self, traj_obtained):
+        print 'ho'
+        if traj_obtained:
+            self.action_status = 3
+            self.result.selected_trajectory = traj_obtained
+            rospy.loginfo('Action %s: Succeeded' % self.action_name)
+            self.action_server.publish_result(self.action_status, self.result)
+            self.goal_received = False
+        return self.object_to_grasp, self.goal_received
+
+
 def trajectory_evaluation_service(trajectories):
     # Calling a service that evaluates obtained trajectories and selects the best one
     rospy.wait_for_service('trajectory_evaluation')
@@ -510,36 +535,45 @@ def trajectory_evaluation_service(trajectories):
 
 
 def main():
-    c_goal = SelectGoal()
+    rospy.init_node('projection_manager_server', anonymous=True)
+    rospy.Rate(100)
+    selected_trajectory = False
+    receive_goal = ProjectedGraspingServer()
+    goal_class = SelectGoal()
+
 
     while not rospy.is_shutdown():
-        # Init weights
-        c_goal.init_gp_weights()
-        # Gets the position of the end effectors
-        c_goal.eef_pos()
-        # Initial arm selection based on distance to closest grasping pose and manipulability
-        arm = c_goal.arm_selector()
+        #(object_to_grasp, received) = ProjectedGraspingServer(selected_trajectory)
+        object_to_grasp = receive_goal.send_trajectory(selected_trajectory)
+        print 'hi'
+        received = False
 
-        # Write YAML file with controller specifications
-        c_goal.yaml_writer()
+        if received:
+            # Init weights
+            goal_class.init_gp_weights()
+            # Initial arm selection based on distance to closest grasping pose and manipulability
+            arm = goal_class.arm_selector(object_to_grasp)
+            # Write YAML file with controller specifications
+            goal_class.yaml_writer()
 
-        # Distance to joint limits
-        c_goal.dist_to_joint_limits(arm)
+            # Distance to joint limits
+            goal_class.dist_to_joint_limits(arm)
 
-        trajectories = []
-        for x in range(2):
-            test_plotter.main(x / 6.0 + 0.2, x / 3.0 + 0.1, x / 4.0 + 0.3)
-            trajectory, status = c_goal.call_gp_action()
-            trajectories.append(trajectory)
-            reset_naive_sim.reset_simulator()
+            trajectories = []
+            for x in range(2):
+                test_plotter.main(x / 6.0 + 0.2, x / 3.0 + 0.1, x / 4.0 + 0.3)
+                trajectory, status = goal_class.call_gp_action()
+                trajectories.append(trajectory)
+                reset_naive_sim.reset_simulator()
 
-        selected = trajectory_evaluation_service(trajectories)
-        selected_trajectory = trajectories[selected.selected_trajectory]
-        rospy.loginfo(selected)
+            selected = trajectory_evaluation_service(trajectories)
+            selected_trajectory = trajectories[selected.selected_trajectory]
+            rospy.loginfo(selected)
 
-        break
-
-    #rospy.spin()
+        #break
+        else:
+            rospy.sleep(0.3)
+    rospy.spin()
 
 
 if __name__ == '__main__':
