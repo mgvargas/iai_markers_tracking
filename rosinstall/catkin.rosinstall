@@ -2,6 +2,10 @@
     local-name: iai_markers_tracking
     uri: https://github.com/mgvargas/iai_markers_tracking.git
     version: master
+- git: 
+    local-name: iai_trajectory_generation_boxy
+    uri: https://github.com/mgvargas/iai_trajectory_generation_boxy.git
+    version: master
 - git:
     local-name: expressiongraph
     uri: https://github.com/SemRoCo/expressiongraph.git
