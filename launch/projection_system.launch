@@ -50,7 +50,7 @@
     </group>
 
     <!-- Simulate robot trajectory -->
-    <node name="sim_controller" pkg="iai_markers_tracking" type="sim_controller.py"
+    <node name="sim_motion_controller" pkg="iai_markers_tracking" type="sim_controller.py"
           respawn="false" output="screen"/>
 
     <!-- Boxy simulation>
