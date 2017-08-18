@@ -26,8 +26,7 @@ import copy
 from geometry_msgs.msg import TransformStamped
 from tf.msg import tfMessage
 from sensor_msgs.msg import CameraInfo
-from visualization_msgs.msg import Marker
-from visualization_msgs.msg import MarkerArray
+from visualization_msgs.msg import Marker, MarkerArray
 from iai_markers_tracking.msg import Object
 from iai_markers_tracking.srv import GetObjectInfo
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -76,28 +75,6 @@ class ObjectGraspingMarker:
         else:
             self.matching = old
         return self.matching
-
-    # Quaternion multiplication (input as tuples)
-    @staticmethod
-    def q_mult(q1, q2):
-        x1, y1, z1, w1 = q1
-        x2, y2, z2, w2 = q2
-        w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-        x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-        y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
-        z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
-        return x, y, z, w
-
-    # Quaternion inverse
-    @staticmethod
-    def q_inv(q1):
-        x1, y1, z1, w1 = q1
-        denom = math.pow(w1, 2) + math.pow(x1, 2) + math.pow(y1, 2) + math.pow(z1, 2)
-        w = w1 / denom
-        x = -x1 / denom
-        y = -y1 / denom
-        z = -z1 / denom
-        return x, y, z, w
 
     # Open database YAML file
     def op_file(self):
