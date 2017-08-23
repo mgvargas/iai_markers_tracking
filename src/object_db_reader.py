@@ -18,11 +18,12 @@
 
 import rospy
 import math
-import tf
 import tf2_ros
 import yaml
 import rospkg
 import copy
+from tf.transformations import quaternion_matrix, quaternion_from_euler
+from numpy import array, matmul
 from geometry_msgs.msg import TransformStamped
 from tf.msg import tfMessage
 from sensor_msgs.msg import CameraInfo
@@ -65,6 +66,12 @@ class ObjectGraspingMarker:
     def clear_v(self):
         self.frame_st = {}
         self.frame_st = {'map'}
+
+    @staticmethod
+    def vector_rotation(q, v):
+        m = quaternion_matrix(q)
+        x,y,z, w = matmul(m, v)
+        return [-x,y,-z]
 
     # Read all frames published in /tf and finds markers
     def match_objects(self):
@@ -126,6 +133,7 @@ class ObjectGraspingMarker:
                             t.transform.rotation.z = rot_marker[2]
                             t.transform.rotation.w = rot_marker[3]
                             self.br.sendTransform(t)
+
                             try:
                                 # Pose of object wrt /camera
                                 t_cam = self.tfBuffer.lookup_transform(self.camera_frame, obj, rospy.Time())
@@ -176,16 +184,16 @@ class ObjectGraspingMarker:
                 mar.scale.x = mar.scale.y = mar.scale.z = 0.01
                 # Marker pose
                 pos = self.yaml_file[k]['grasping_poses'][n]['position']
-                orien = self.yaml_file[k]['grasping_poses'][n]['orientation']
+                orient = self.yaml_file[k]['grasping_poses'][n]['orientation']
                 mar.pose.position.x = pos[0]
                 mar.pose.position.y = pos[1]
                 mar.pose.position.z = pos[2]
                 mar.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_base.stl'
                 mar.mesh_use_embedded_materials = True
-                mar.pose.orientation.x = orien[0]
-                mar.pose.orientation.y = orien[1]
-                mar.pose.orientation.z = orien[2]
-                mar.pose.orientation.w = orien[3]
+                mar.pose.orientation.x = orient[0]
+                mar.pose.orientation.y = orient[1]
+                mar.pose.orientation.z = orient[2]
+                mar.pose.orientation.w = orient[3]
                 finger1 = copy.deepcopy(mar)
                 finger1.mesh_resource = 'package://iai_markers_tracking/meshes/gripper_finger.stl'
                 finger1.ns = mar.ns + '_f1'
@@ -205,7 +213,7 @@ class ObjectGraspingMarker:
                 finger2.pose.orientation.w = 0.0
                 finger2.ns = mar.ns + '_f2'
                 finger1.id = self.yaml_file[k]['id'] * 2000 + n
-                return mar, pos[0], pos[1], pos[2], orien, finger1, finger2
+                return mar, pos[0], pos[1], pos[2], orient, finger1, finger2
 
     # Published the /tf for all objects and the markers (of the grasping poses)
     def publish_obj(self, obj_list):
@@ -243,6 +251,27 @@ class ObjectGraspingMarker:
                 
                 self.s_br.sendTransform(static_tf)
 
+                # Create a pre-grasping pose
+                pre_gp = copy.deepcopy(static_tf)
+                pre_gp.child_frame_id = 'pre-' + static_tf.child_frame_id
+                vec = array([0.0, 0.0, -0.035, 0.0])
+                translate = self.vector_rotation(orien,vec)
+                x_t = translate[0] + x
+                y_t = translate[1] + y
+                z_t = translate[2] + z
+                if abs(x_t) < abs(x):
+                    x_t = -translate[0] + x
+                if abs(y_t) < abs(x):
+                    y_t = -translate[1] + y
+                if abs(z_t) < abs(x):
+                    z_t = -translate[2] + z
+                pre_gp.transform.translation.x = x_t
+                pre_gp.transform.translation.y = y_t
+                pre_gp.transform.translation.z = z_t
+
+
+                self.s_br.sendTransform(pre_gp)
+
             if len(pose_list) > 0:
                 self.grasp_poses[obj] = pose_list
 
@@ -269,7 +298,7 @@ class ObjectGraspingMarker:
         table.action = table.ADD
         table.lifetime = rospy.Time(2)
         table.scale.x = table.scale.y = table.scale.z = 1.0
-        quaternion = tf.transformations.quaternion_from_euler(0, 0, math.pi * 0.5)
+        quaternion = quaternion_from_euler(0, 0, math.pi * 0.5)
         table.pose.position.x = 0
         table.pose.position.y = 0
         table.pose.position.z = 0
@@ -278,8 +307,8 @@ class ObjectGraspingMarker:
         table.pose.orientation.z = quaternion[2]
         table.pose.orientation.w = quaternion[3]
         table.scale.x = table.scale.y = table.scale.z = 1.0
-        table.color.r = table.color.g = 0.2
-        table.color.b = 0.25
+        table.color.r = table.color.g = 0.8
+        table.color.b = 0.7
         table.color.a = 1.0
         return table
 
