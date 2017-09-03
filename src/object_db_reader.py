@@ -48,7 +48,6 @@ class ObjectGraspingMarker:
         self.s_br = tf2_ros.StaticTransformBroadcaster()
 
         # Variable initialization
-        self.markerArray = MarkerArray()
         self.frame_st = {'map'}
         self.yaml_file = {}
         self.grasp_poses = {}

@@ -6,11 +6,11 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /MarkerArray1
         - /MarkerArray1/Namespaces1
-        - /TF1
         - /TF1/Frames1
         - /MarkerArray2/Namespaces1
+        - /PlanningScene1
+        - /PlanningScene1/Scene Robot1
       Splitter Ratio: 0.5
     Tree Height: 463
   - Class: rviz/Selection
@@ -65,6 +65,25 @@ Visualization Manager:
       Marker Topic: visualization_marker_array
       Name: MarkerArray
       Namespaces:
+        bowl: true
+        bowl_gp1: true
+        bowl_gp1_f1: true
+        bowl_gp1_f2: true
+        bowl_gp2: true
+        bowl_gp2_f1: true
+        bowl_gp2_f2: true
+        bowl_gp3: true
+        bowl_gp3_f1: true
+        bowl_gp3_f2: true
+        bowl_gp4: true
+        bowl_gp4_f1: true
+        bowl_gp4_f2: true
+        bowl_gp5: true
+        bowl_gp5_f1: true
+        bowl_gp5_f2: true
+        bowl_gp6: true
+        bowl_gp6_f1: true
+        bowl_gp6_f2: true
         cup: true
         cup_gp1: true
         cup_gp1_f1: true
@@ -83,6 +102,9 @@ Visualization Manager:
         knorr_tomate_gp2: true
         knorr_tomate_gp2_f1: true
         knorr_tomate_gp2_f2: true
+        knorr_tomate_gp3: true
+        knorr_tomate_gp3_f1: true
+        knorr_tomate_gp3_f2: true
         mondamin: true
         mondamin_gp1: true
         mondamin_gp1_f1: true
@@ -279,16 +301,6 @@ Visualization Manager:
           Show Trail: false
           Value: true
         left_wrist_optical_frame_x:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        limit_box:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        limit_box2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -526,6 +538,411 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: true
+    - Class: moveit_rviz_plugin/PlanningScene
+      Enabled: true
+      Move Group Namespace: ""
+      Name: PlanningScene
+      Planning Scene Topic: /planning_scene
+      Robot Description: robot_description
+      Scene Geometry:
+        Scene Alpha: 0.899999976
+        Scene Color: 50; 230; 50
+        Scene Display Time: 0.200000003
+        Show Scene Geometry: true
+        Voxel Coloring: Z-Axis
+        Voxel Rendering: Occupied Voxels
+      Scene Robot:
+        Attached Body Color: 150; 50; 150
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          base_footprint:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          calib_left_arm_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          calib_right_arm_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          head_mount_kinect2_rgb_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          laser_reference_back:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          laser_reference_front:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_arm_1_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_2_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_3_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_4_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_5_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_6_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_7_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_adapter_fwa050_wsg50_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_adapter_fwa050_wsg50_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_arm_adapter_iso50_kms40_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_adapter_iso50_kms40_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_arm_adapter_kms40_fwk050_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_adapter_kms40_fwk050_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_arm_cabling_adaptor_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_flange_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_arm_fwk_fwa_050_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_fwk_fwa_050_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_arm_kms40_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_kms40_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_gripper_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_gripper_finger_left_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_gripper_finger_right_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_gripper_gripper_left_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_gripper_gripper_right_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_gripper_tool_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_wrist_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_wrist_optical_frame_x:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_adapter_iso50_kinect2_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_adapter_iso50_kinect2_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          neck_adapter_ur3_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_adapter_ur3_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          neck_base:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          neck_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_ee_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_forearm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_shoulder_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_tool0:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          neck_upper_arm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_wrist_1_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_wrist_2_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_wrist_3_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          odom:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          odom_x_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          odom_y_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_arm_1_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_2_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_3_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_4_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_5_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_6_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_7_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_adapter_fwa050_wsg50_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_adapter_fwa050_wsg50_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_arm_adapter_iso50_kms40_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_adapter_iso50_kms40_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_arm_adapter_kms40_fwk050_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_adapter_kms40_fwk050_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_arm_cabling_adaptor_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_flange_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_arm_fwk_fwa_050_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_fwk_fwa_050_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_arm_kms40_frame_in:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_kms40_frame_out:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_gripper_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_gripper_finger_left_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_gripper_finger_right_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_gripper_gripper_left_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_gripper_gripper_right_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_gripper_tool_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          shoulder_kinect_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          torso_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          triangle_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          triangle_left_arm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          triangle_right_arm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Robot Alpha: 1
+        Show Robot Collision: false
+        Show Robot Visual: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -550,24 +967,24 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.55630755
+      Distance: 2.62595725
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.597275794
-        Y: 0.234080255
-        Z: 1.22740424
+        X: -0.123276755
+        Y: 0.304611623
+        Z: 0.575360179
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.370399386
+      Pitch: 0.620399773
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.67360926
+      Yaw: 5.22362947
     Saved: ~
 Window Geometry:
   Displays:
@@ -586,4 +1003,4 @@ Window Geometry:
     collapsed: true
   Width: 1313
   X: 53
-  Y: 456
+  Y: 24
