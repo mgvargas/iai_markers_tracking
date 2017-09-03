@@ -90,8 +90,11 @@ knorr_tomate:
  gripper_opening: 0.05
  grasping_poses:
     - p_id: gp1
-      position: [0.03,0.0,0.05]
+      position: [0.02,0.0,0.085]
       orientation: [0.5, -0.5, -0.5,  0.5]
     - p_id: gp2
-      position: [-0.03,0.0,0.05]
+      position: [-0.02,0.0,0.085]
       orientation:  [ 0.5,  0.5, 0.5,  0.5]
+    - p_id: gp3
+      position: [0.0,0.0,0.095]
+      orientation:  [ -0.70710678,   0.70710678,   4.32978e-17,  4.32978e-17]

@@ -38,10 +38,10 @@ def main():
         camera.header.frame_id = 'camera_optical_frame'
         camera_pub.publish(camera)
 
-        quaternion0 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(85), math.radians(0))
+        quaternion0 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(85), math.radians(0))
         quaternion1 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(90), math.radians(0))
         quaternion2 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(85), 0)
-        quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-14), math.radians(-15), 0)
+        quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-10), math.radians(-90-15), 0)
         quaternion4 = tf.transformations.quaternion_from_euler(-math.pi/2, 0, 0)
 
         now = rospy.Time.now()
@@ -50,7 +50,7 @@ def main():
         knorr.header.stamp = now
         knorr.header.frame_id = camera.header.frame_id
         knorr.child_frame_id = 'tag_0'
-        knorr.transform.translation.x = 0.4
+        knorr.transform.translation.x = 0.25
         knorr.transform.translation.y = 1.24
         knorr.transform.translation.z = 0.2
         knorr.transform.rotation.x = quaternion0[0]
@@ -74,9 +74,9 @@ def main():
         bowl.header.stamp = now
         bowl.header.frame_id = camera.header.frame_id
         bowl.child_frame_id = 'tag_3'
-        bowl.transform.translation.x = 0.1
+        bowl.transform.translation.x = 0.55
         bowl.transform.translation.y = 1.18
-        bowl.transform.translation.z = 0.1
+        bowl.transform.translation.z = 0.3
         bowl.transform.rotation.x = quaternion3[0]
         bowl.transform.rotation.y = quaternion3[1]
         bowl.transform.rotation.z = quaternion3[2]
@@ -105,25 +105,13 @@ def main():
         camera.transform.rotation.y = quaternion4[1]
         camera.transform.rotation.z = quaternion4[2]
         camera.transform.rotation.w = quaternion4[3]
-
-        odom = TransformStamped()
-        odom.header.stamp = now
-        odom.header.frame_id = 'map'
-        odom.child_frame_id = 'odom'
-        odom.transform.translation.x = -0.8
-        odom.transform.translation.y = -0.5
-        odom.transform.translation.z = 0
-        odom.transform.rotation.x = 0
-        odom.transform.rotation.y = 0
-        odom.transform.rotation.z = 0
-        odom.transform.rotation.w = 1
         
         br.sendTransform(knorr)
         br.sendTransform(cup)
-        #br.sendTransform(bowl)
+        br.sendTransform(bowl)
         br.sendTransform(mondamin)
         br.sendTransform(camera)
-        br.sendTransform(odom)
+
 
         r.sleep()
 
