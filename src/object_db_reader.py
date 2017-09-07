@@ -37,21 +37,23 @@ class ObjectGraspingMarker:
     grasp_poses = {}
 
     def __init__(self):
-        rospy.init_node('object_db', anonymous=True)
-        self.s = rospy.Service('get_object_info', GetObjectInfo, self.list_grasping_poses)
-        self.tfBuffer = tf2_ros.Buffer()
-        tf2_ros.TransformListener(self.tfBuffer)
-        self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback_tf)
-        self.camera_lis = rospy.Subscriber("/camera/camera_info", CameraInfo, self.callback_camera)
-        self.object_pub = rospy.Publisher('found_objects', Object, queue_size=20)
-        self.br = tf2_ros.TransformBroadcaster()
-        self.s_br = tf2_ros.StaticTransformBroadcaster()
-
         # Variable initialization
         self.frame_st = {'map'}
         self.yaml_file = {}
         self.grasp_poses = {}
         self.matching = []
+
+        rospy.init_node('object_db', anonymous=True)
+        self.s = rospy.Service('get_object_info', GetObjectInfo, self.list_grasping_poses)
+        self.tfBuffer = tf2_ros.Buffer()
+        tf2_ros.TransformListener(self.tfBuffer)
+        self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback_tf)
+        camera_info_topic = rospy.get_param('/camera_info')
+        #camera_info_topic = "/camera/camera_info"
+        self.camera_lis = rospy.Subscriber(camera_info_topic, CameraInfo, self.callback_camera)
+        self.object_pub = rospy.Publisher('found_objects', Object, queue_size=20)
+        self.br = tf2_ros.TransformBroadcaster()
+        self.s_br = tf2_ros.StaticTransformBroadcaster()
 
     def callback_tf(self, data):
         # Get the list of frames published by tf
@@ -159,7 +161,10 @@ class ObjectGraspingMarker:
                                 found_object.color.r = found_object.color.g = found_object.color.b = 0
                                 found_object.color.a = 0
                                 found_object.lifetime = rospy.Time(1)
-                                poses = len(self.yaml_file[k]['grasping_poses'])
+                                if obj != 'kitchen_table':
+                                    poses = len(self.yaml_file[k]['grasping_poses'])
+                                else:
+                                    poses = 0
 
                             return found_object, poses
 
@@ -284,33 +289,6 @@ class ObjectGraspingMarker:
                 return g_p
             continue
 
-    @staticmethod
-    def create_table():
-        table = Marker()
-        table.header.frame_id = "/map"
-        table.header.stamp = rospy.Time.now()
-        table.ns = "kitchen_table"
-        table.id = 0
-        table.type = table.MESH_RESOURCE
-        table.mesh_resource = "package://iai_markers_tracking/meshes/big_table_1.dae"
-        table.mesh_use_embedded_materials = True
-        table.action = table.ADD
-        table.lifetime = rospy.Time(2)
-        table.scale.x = table.scale.y = table.scale.z = 1.0
-        quaternion = quaternion_from_euler(0, 0, math.pi * 0.5)
-        table.pose.position.x = 0
-        table.pose.position.y = 0
-        table.pose.position.z = 0
-        table.pose.orientation.x = quaternion[0]
-        table.pose.orientation.y = quaternion[1]
-        table.pose.orientation.z = quaternion[2]
-        table.pose.orientation.w = quaternion[3]
-        table.scale.x = table.scale.y = table.scale.z = 1.0
-        table.color.r = table.color.g = 0.8
-        table.color.b = 0.7
-        table.color.a = 1.0
-        return table
-
 
 # Main function
 def main():
@@ -344,10 +322,6 @@ def main():
                 marker_array.markers.append(markers[obj][n])
                 marker_array.markers.append(finger1[obj][n])
                 marker_array.markers.append(finger2[obj][n])
-
-        # Publish a table, just for visualization
-        table = grasp_class.create_table()
-        marker_array.markers.append(table)
 
         marker_pub.publish(marker_array)
         r.sleep()

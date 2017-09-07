@@ -94,6 +94,18 @@ def main():
         mondamin.transform.rotation.z = quaternion1[2]
         mondamin.transform.rotation.w = quaternion1[3]
 
+        table = TransformStamped()
+        table.header.stamp = now
+        table.header.frame_id = camera.header.frame_id
+        table.child_frame_id = 'tag_9'
+        table.transform.translation.x = 0.0
+        table.transform.translation.y = 1.22+0.428
+        table.transform.translation.z = 0.0
+        table.transform.rotation.x = quaternion1[0]
+        table.transform.rotation.y = quaternion1[1]
+        table.transform.rotation.z = quaternion1[2]
+        table.transform.rotation.w = quaternion1[3]
+
         camera = TransformStamped()
         camera.header.stamp = now
         camera.header.frame_id = 'map'
