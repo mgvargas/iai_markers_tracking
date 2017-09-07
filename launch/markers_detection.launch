@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Parameters -->
+    <arg name="debug" default="false" />
+    <arg name="boxy" default="false" />
+    <arg name="sim" default="false" />
+    <arg name="rviz" default="true" />
+
+    <!-- Run Rviz and load the default config to see the active objects -->
+    <group if="$(arg rviz)" >
+      <include file="$(find iai_markers_tracking)/launch/markers_rviz.launch">
+        <arg name="config" value="true"/>
+        <arg name="debug" value="$(arg debug)"/>
+      </include>
+     </group>
+
+    <!-- Object detection and database -->
+    <node name="obj_database" pkg="iai_markers_tracking" type="object_db_reader.py"
+          respawn="false" output="screen"/>
+	 <!-- Camera topic configuration --> 
+		<!-- For the kinect on Boxy -->
+    <group if="$(arg boxy)">
+        <include file="$(find video_stream_opencv)/launch/camera.launch">
+          <arg name="frame_id" value="head_mount_kinect2_rgb_optical_frame"/>
+			 <arg name="camera_info_url" default="file:///$(find iai_markers_tracking)/config/kinect.yaml" />
+			 <arg name="visualize" default="true"/>
+        </include>
+        <include file="$(find ros_markers)/launch/detect.launch">
+          <arg name="omit_other_tags" value="false"/>
+          <arg name="default_marker_size" value="28.5" />
+          <arg name="image_topic" value="/camera/image_color"/>
+        </include>
+    </group>
+		<!-- For my laptop's camera -->
+    <group unless="$(arg boxy)">
+		<group unless="$(arg sim)">
+        <include file="$(find video_stream_opencv)/launch/camera.launch">
+          <arg name="frame_id" value="camera_optical_frame"/>
+			 <arg name="camera_info_url" default="file:///$(find iai_markers_tracking)/config/camera.yaml" />
+        </include>
+        <include file="$(find ros_markers)/launch/detect.launch">
+          <arg name="omit_other_tags" value="false"/>
+          <arg name="default_marker_size" value="28.5" />
+          <arg name="image_topic" value="/camera/image_raw"/>
+        </include>
+    	</group>
+    </group>
+</launch>
