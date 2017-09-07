@@ -64,7 +64,7 @@ def main():
         cup.child_frame_id = 'tag_1'
         cup.transform.translation.x = 0.35
         cup.transform.translation.y = 1.21
-        cup.transform.translation.z = -0.4
+        cup.transform.translation.z = -0.55
         cup.transform.rotation.x = quaternion2[0]
         cup.transform.rotation.y = quaternion2[1]
         cup.transform.rotation.z = quaternion2[2]
@@ -74,7 +74,7 @@ def main():
         bowl.header.stamp = now
         bowl.header.frame_id = camera.header.frame_id
         bowl.child_frame_id = 'tag_3'
-        bowl.transform.translation.x = 0.55
+        bowl.transform.translation.x = 0.65
         bowl.transform.translation.y = 1.18
         bowl.transform.translation.z = 0.3
         bowl.transform.rotation.x = quaternion3[0]
