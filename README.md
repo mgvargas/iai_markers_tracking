@@ -14,7 +14,7 @@ wstool merge https://raw.githubusercontent.com/mgvargas/iai_markers_tracking/mas
 wstool update                              # pull source repositories
 rosdep install --ignore-src --from-paths . # install dependencies available through apt
 cd ..                                      # go to workspace directory
-catkin_make                                # build packages
+catkin build                                # build packages
 source ~/obj_grasp_ws/devel/setup.bash     # source new overlay
 ```
 

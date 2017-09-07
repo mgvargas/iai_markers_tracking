@@ -136,7 +136,7 @@ include_directories(
 
 ## Declare a C++ executable
 # add_executable(iai_markers_tracking_node src/iai_markers_tracking_node.cpp)
-add_executable(basic_shapes others/basic_shapes.cpp)
+#add_executable(basic_shapes others/basic_shapes.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -146,7 +146,7 @@ add_executable(basic_shapes others/basic_shapes.cpp)
 # target_link_libraries(iai_markers_tracking_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(basic_shapes ${catkin_LIBRARIES})
+#target_link_libraries(basic_shapes ${catkin_LIBRARIES})
 
 #############
 ## Install ##
