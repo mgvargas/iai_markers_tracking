@@ -3,8 +3,8 @@
 
     <!-- Parameters -->
     <arg name="debug" default="false" />
-    <arg name="boxy" default="true" />
-    <arg name="sim" default="false" />
+    <arg name="boxy" default="false" />
+    <arg name="sim" default="true" />
     <arg name="rviz" default="true" />
 
     <!-- Run Rviz and load the default config to see the active objects -->
@@ -14,6 +14,12 @@
         <arg name="debug" value="$(arg debug)"/>
       </include>
      </group>
+
+
+    <group if="$(arg sim)">
+        <node name="object_poses" pkg="iai_markers_tracking" type="simulate_obj_detection.py"
+              respawn="false" output="screen"/>
+    </group>
 
     <!-- Object detection and database -->
     <node name="obj_database" pkg="iai_markers_tracking" type="object_db_reader.py"
@@ -36,7 +42,7 @@
           <arg name="frame_id" value="camera_optical_frame"/>
 			 <arg name="camera_info_url" default="file:///$(find iai_markers_tracking)/config/camera.yaml" />
         </include>
-        <include file="$(find ros_markers)/launch/detect_thorin_remapped_tf_kinect.launch">
+        <include file="$(find ros_markers)/launch/detect.launch">
           <arg name="omit_other_tags" value="false"/>
           <arg name="default_marker_size" value="28.5" />
           <arg name="image_topic" value="/camera/image_raw"/>

@@ -40,8 +40,9 @@ def main():
 
         quaternion0 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(85), math.radians(0))
         quaternion1 = tf.transformations.quaternion_from_euler(math.radians(0), math.radians(90), math.radians(0))
+        quaternion5 = tf.transformations.quaternion_from_euler(math.radians(-90), math.radians(0), math.radians(0))
         quaternion2 = tf.transformations.quaternion_from_euler(math.radians(5), math.radians(85), 0)
-        quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-10), math.radians(-90-15), 0)
+        quaternion3 = tf.transformations.quaternion_from_euler(math.radians(-15), math.radians(-90-65), math.radians(0))
         quaternion4 = tf.transformations.quaternion_from_euler(-math.pi/2, 0, 0)
 
         now = rospy.Time.now()
@@ -50,9 +51,9 @@ def main():
         knorr.header.stamp = now
         knorr.header.frame_id = camera.header.frame_id
         knorr.child_frame_id = 'tag_0'
-        knorr.transform.translation.x = 0.25
-        knorr.transform.translation.y = 1.24
-        knorr.transform.translation.z = 0.2
+        knorr.transform.translation.x = 0.44
+        knorr.transform.translation.y = 1.24-0.125
+        knorr.transform.translation.z = 0.32
         knorr.transform.rotation.x = quaternion0[0]
         knorr.transform.rotation.y = quaternion0[1]
         knorr.transform.rotation.z = quaternion0[2]
@@ -62,8 +63,8 @@ def main():
         cup.header.stamp = now
         cup.header.frame_id = camera.header.frame_id
         cup.child_frame_id = 'tag_1'
-        cup.transform.translation.x = 0.35
-        cup.transform.translation.y = 1.21
+        cup.transform.translation.x = 0.48
+        cup.transform.translation.y = 1.21-.14
         cup.transform.translation.z = -0.55
         cup.transform.rotation.x = quaternion2[0]
         cup.transform.rotation.y = quaternion2[1]
@@ -74,9 +75,9 @@ def main():
         bowl.header.stamp = now
         bowl.header.frame_id = camera.header.frame_id
         bowl.child_frame_id = 'tag_3'
-        bowl.transform.translation.x = 0.65
-        bowl.transform.translation.y = 1.18
-        bowl.transform.translation.z = 0.3
+        bowl.transform.translation.x = 0.75
+        bowl.transform.translation.y = 1.04
+        bowl.transform.translation.z = 0.5
         bowl.transform.rotation.x = quaternion3[0]
         bowl.transform.rotation.y = quaternion3[1]
         bowl.transform.rotation.z = quaternion3[2]
@@ -86,9 +87,9 @@ def main():
         mondamin.header.stamp = now
         mondamin.header.frame_id = camera.header.frame_id
         mondamin.child_frame_id = 'tag_5'
-        mondamin.transform.translation.x = 0.5
-        mondamin.transform.translation.y = 1.22
-        mondamin.transform.translation.z = -0.13
+        mondamin.transform.translation.x = 0.65
+        mondamin.transform.translation.y = 1.22-.14
+        mondamin.transform.translation.z = -0.1
         mondamin.transform.rotation.x = quaternion1[0]
         mondamin.transform.rotation.y = quaternion1[1]
         mondamin.transform.rotation.z = quaternion1[2]
@@ -98,13 +99,13 @@ def main():
         table.header.stamp = now
         table.header.frame_id = camera.header.frame_id
         table.child_frame_id = 'tag_9'
-        table.transform.translation.x = 0.0
-        table.transform.translation.y = 1.22+0.428
-        table.transform.translation.z = 0.0
-        table.transform.rotation.x = quaternion1[0]
-        table.transform.rotation.y = quaternion1[1]
-        table.transform.rotation.z = quaternion1[2]
-        table.transform.rotation.w = quaternion1[3]
+        table.transform.translation.x = 0.5
+        table.transform.translation.y = 1.15
+        table.transform.translation.z = 0.55
+        table.transform.rotation.x = quaternion5[0]
+        table.transform.rotation.y = quaternion5[1]
+        table.transform.rotation.z = quaternion5[2]
+        table.transform.rotation.w = quaternion5[3]
 
         camera = TransformStamped()
         camera.header.stamp = now
@@ -122,6 +123,7 @@ def main():
         br.sendTransform(cup)
         br.sendTransform(bowl)
         br.sendTransform(mondamin)
+        br.sendTransform(table)
         br.sendTransform(camera)
 
 
