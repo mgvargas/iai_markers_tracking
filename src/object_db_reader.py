@@ -49,7 +49,7 @@ class ObjectGraspingMarker:
         tf2_ros.TransformListener(self.tfBuffer)
         self.tf_lis = rospy.Subscriber("tf", tfMessage, self.callback_tf)
         camera_info_topic = rospy.get_param('/camera_info')
-        #camera_info_topic = "/camera/camera_info"
+
         self.camera_lis = rospy.Subscriber(camera_info_topic, CameraInfo, self.callback_camera)
         self.object_pub = rospy.Publisher('found_objects', Object, queue_size=20)
         self.br = tf2_ros.TransformBroadcaster()
@@ -265,9 +265,9 @@ class ObjectGraspingMarker:
                 z_t = translate[2] + z
                 if abs(x_t) < abs(x):
                     x_t = -translate[0] + x
-                if abs(y_t) < abs(x):
+                if abs(y_t) < abs(y):
                     y_t = -translate[1] + y
-                if abs(z_t) < abs(x):
+                if abs(z_t) < abs(z):
                     z_t = -translate[2] + z
                 pre_gp.transform.translation.x = x_t
                 pre_gp.transform.translation.y = y_t
