@@ -50,7 +50,7 @@ def main():
         knorr = TransformStamped()
         knorr.header.stamp = now
         knorr.header.frame_id = camera.header.frame_id
-        knorr.child_frame_id = 'tag_0'
+        knorr.child_frame_id = 'tag_10'
         knorr.transform.translation.x = 0.44
         knorr.transform.translation.y = 1.24-0.125
         knorr.transform.translation.z = 0.32

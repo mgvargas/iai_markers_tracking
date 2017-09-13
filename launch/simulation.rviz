@@ -55,25 +55,6 @@ Visualization Manager:
       Marker Topic: visualization_marker_array
       Name: MarkerArray
       Namespaces:
-        bowl: true
-        bowl_gp1: true
-        bowl_gp1_f1: true
-        bowl_gp1_f2: true
-        bowl_gp2: true
-        bowl_gp2_f1: true
-        bowl_gp2_f2: true
-        bowl_gp3: true
-        bowl_gp3_f1: true
-        bowl_gp3_f2: true
-        bowl_gp4: true
-        bowl_gp4_f1: true
-        bowl_gp4_f2: true
-        bowl_gp5: true
-        bowl_gp5_f1: true
-        bowl_gp5_f2: true
-        bowl_gp6: true
-        bowl_gp6_f1: true
-        bowl_gp6_f2: true
         cup: true
         cup_gp1: true
         cup_gp1_f1: true
@@ -108,6 +89,9 @@ Visualization Manager:
         mondamin_gp4: true
         mondamin_gp4_f1: true
         mondamin_gp4_f2: true
+        mondamin_gp5: true
+        mondamin_gp5_f1: true
+        mondamin_gp5_f2: true
       Queue Size: 100
       Value: true
     - Class: rviz/TF
@@ -295,6 +279,16 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        limit_box:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        limit_box2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         neck_adapter_iso50_kinect2_frame_in:
           Alpha: 1
           Show Axes: false
@@ -328,6 +322,28 @@ Visualization Manager:
           Show Trail: false
           Value: true
         neck_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        neck_look_target:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        neck_look_target_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        neck_look_target_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        neck_look_target_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        neck_obstacle:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -710,6 +726,16 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          limit_box:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          limit_box2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           neck_adapter_iso50_kinect2_frame_in:
             Alpha: 1
             Show Axes: false
@@ -743,6 +769,28 @@ Visualization Manager:
             Show Trail: false
             Value: true
           neck_forearm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_look_target:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          neck_look_target_2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          neck_look_target_3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          neck_look_target_4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          neck_obstacle:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -982,9 +1030,9 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.430642575
-        Y: -0.304120421
-        Z: 0.846081078
+        X: 1.29107499
+        Y: 0.966353714
+        Z: 1.07735217
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Name: Current View
