@@ -86,21 +86,27 @@ mondamin:
       position: [0,-0.02,0.15]
       orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp2
-      position: [0,-0.02,0.07]
+      position: [0,-0.02,0.1]
       orientation: [-0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp3
-      position: [0,0.02,0.07]
+      position: [0,0.02,0.1]
       orientation: [ 0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp4
       position: [0,0.02,0.15]
       orientation: [ 0.70710678, 0.0, 0.0, 0.70710678]
+    - p_id: gp5
+      position: [0,0.00,0.18]
+      orientation: [ 0.00, 1.00, 0.00, 6.12323400e-17]
 
 knorr_tomate:
  id: 04
- marker: [tag_0]
- tag_0:
+ marker: [tag_10, tag_11]
+ tag_10:
   position: [-0.006,0.035,0.0232]
   orientation: [-0.00653739,  0.70744666, -0.70670621, -0.00654424]
+ tag_11:
+  position: [-0.006,0.015,0.112]
+  orientation: [ 0.00, 1.00, 0.00, 6.12323400e-17]
  mesh: package://iai_markers_tracking/meshes/knorr_tomate.dae
  scale: 1.0 # if cm = 1, m = 0.001
  gripper_opening: 0.05
