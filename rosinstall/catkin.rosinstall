@@ -62,7 +62,7 @@
     version: fix-joint-limits-velocity-mode
 - git:
     local-name: ros_markers
-    https://github.com/mgvargas/ros_markers
+    https://github.com/mgvargas/ros_markers.git
     version: master
 - git:
     local-name: urdfdom
