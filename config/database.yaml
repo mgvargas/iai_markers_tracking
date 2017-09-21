@@ -1,8 +1,11 @@
 kitchen_table:
  id: 00
- marker: [tag_9]
+ marker: [tag_9, tag_12]
  tag_9:
   position: [0.2475,0.505,0.428]
+  orientation: [  9.99847695e-01,  -1.74524064e-02,  -1.06865168e-18, 6.12230140e-17]
+ tag_12:
+  position: [-0.2475,0.525,0.428]
   orientation: [  9.99847695e-01,  -1.74524064e-02,  -1.06865168e-18, 6.12230140e-17]
  mesh: package://iai_markers_tracking/meshes/kitchen_island.stl
  scale: 1.0 # if cm = 1, m = 0.001
@@ -31,7 +34,7 @@ cup:
       position: [0.058,0.0,0.048]
       orientation: [0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp3
-      position: [-0.036,-0.0,0.06]
+      position: [-0.036,-0.0,0.045]
       orientation: [0,1.0,0.0,0.000001]
 
 bowl:
@@ -95,7 +98,7 @@ mondamin:
       position: [0,0.02,0.15]
       orientation: [ 0.70710678, 0.0, 0.0, 0.70710678]
     - p_id: gp5
-      position: [0,0.00,0.18]
+      position: [0,0.00,0.175]
       orientation: [ 0.00, 1.00, 0.00, 6.12323400e-17]
 
 knorr_tomate:
@@ -118,5 +121,5 @@ knorr_tomate:
       position: [-0.02,0.0,0.085]
       orientation:  [ 0.5,  0.5, 0.5,  0.5]
     - p_id: gp3
-      position: [0.0,0.0,0.095]
+      position: [0.0,0.0,0.085]
       orientation:  [ -0.70710678,   0.70710678,   4.32978e-17,  4.32978e-17]

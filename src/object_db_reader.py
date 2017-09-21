@@ -258,7 +258,7 @@ class ObjectGraspingMarker:
                 # Create a pre-grasping pose
                 pre_gp = copy.deepcopy(static_tf)
                 pre_gp.child_frame_id = 'pre-' + static_tf.child_frame_id
-                vec = array([0.0, 0.0, -0.035, 0.0])
+                vec = array([0.0, 0.0, -0.08, 0.0])
                 translate = self.vector_rotation(orien,vec)
                 x_t = translate[0] + x
                 y_t = translate[1] + y
@@ -269,6 +269,8 @@ class ObjectGraspingMarker:
                     y_t = -translate[1] + y
                 if abs(z_t) < abs(z):
                     z_t = -translate[2] + z
+                if 'knorr' in static_tf.child_frame_id:
+                    x_t = -translate[0] + x
                 pre_gp.transform.translation.x = x_t
                 pre_gp.transform.translation.y = y_t
                 pre_gp.transform.translation.z = z_t
